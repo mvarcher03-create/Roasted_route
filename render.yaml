@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: roasted-route-system
+    env: python
+    buildCommand: pip install -r requirements.txt && python roasted_project/manage.py collectstatic --noinput
+    startCommand: gunicorn roasted_project.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: roasted_project.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+    disk:
+      name: media
+      mountPath: /opt/render/project/src/roasted_project/media
+      sizeGB: 1

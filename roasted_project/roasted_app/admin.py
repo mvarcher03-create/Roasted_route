@@ -1,17 +1,19 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.utils.html import mark_safe
 from .models import MenuItem, Cart, CartItem, Order, OrderItem, Customer, GCashSettings
 
 # Register your models here.
 
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
-    list_display = ['name', 'price', 'category', 'available', 'stock', 'is_featured', 'created_at']
+    list_display = ['name', 'price', 'category', 'available', 'stock', 'is_featured', 'created_at', 'image_tag']
     list_filter = ['category', 'available', 'is_featured', 'created_at']
     search_fields = ['name', 'description']
     list_editable = ['price', 'available', 'stock', 'is_featured']
     list_per_page = 20
+    readonly_fields = ['image_preview']
     
     fieldsets = (
         ('Basic Information', {
@@ -21,10 +23,22 @@ class MenuItemAdmin(admin.ModelAdmin):
             'fields': ('available', 'stock', 'is_featured')
         }),
         ('Media', {
-            'fields': ('image',),
+            'fields': ('image', 'image_preview'),
             'classes': ('collapse',)
         })
     )
+
+    def image_tag(self, obj):
+        if obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="height: 50px;" />')
+        return 'No Image'
+    image_tag.short_description = 'Image'
+
+    def image_preview(self, obj):
+        if obj and obj.image:
+            return mark_safe(f'<img src="{obj.image.url}" style="max-height: 200px;" />')
+        return 'No Image'
+    image_preview.short_description = 'Image preview'
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
