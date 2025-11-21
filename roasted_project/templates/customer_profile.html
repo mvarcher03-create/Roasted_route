@@ -1,0 +1,570 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}My Profile - Roasted Route{% endblock %}
+{% block nav_profile_active %}active{% endblock %}
+{% block page_header %}My Profile{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --primary: #D32F2F;
+        --primary-light: #FF5252;
+        --primary-dark: #B71C1C;
+        --secondary: #FFC107;
+        --accent: #FF5722;
+        --surface: #FFFFFF;
+        --background: #F8F9FA;
+        --on-surface: #212529;
+        --on-primary: #FFFFFF;
+        --on-secondary: #212529;
+        --outline: #DEE2E6;
+        --success: #28A745;
+        --warning: #FFC107;
+        --error: #DC3545;
+        --info: #17A2B8;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+        --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --border-radius-sm: 8px;
+        --border-radius-md: 12px;
+        --border-radius-lg: 16px;
+        --border-radius-xl: 24px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-fast: all 0.15s ease;
+    }
+
+    body {
+        font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background-color: var(--surface);
+        color: var(--on-surface);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .app-main {
+        flex: 1;
+        padding: 2rem;
+        overflow-y: auto;
+    }
+
+    /* Profile Card */
+    .profile-card {
+        background: var(--surface);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--outline);
+    }
+
+    /* Profile Header */
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--outline);
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: var(--on-primary);
+        font-weight: bold;
+        flex-shrink: 0;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .profile-info h2 {
+        margin: 0 0 0.5rem 0;
+        color: var(--on-surface);
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    .profile-info p {
+        margin: 0.25rem 0;
+        color: #6c757d;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .profile-info i {
+        color: var(--primary);
+        width: 16px;
+        text-align: center;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--border-radius-md);
+        padding: 1.5rem;
+        text-align: center;
+        transition: var(--transition);
+        border-left: 4px solid transparent;
+    }
+
+    .stat-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--on-surface);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-card:nth-child(1) { border-left-color: var(--primary); }
+    .stat-card:nth-child(2) { border-left-color: var(--info); }
+    .stat-card:nth-child(3) { border-left-color: var(--success); }
+    .stat-card:nth-child(4) { border-left-color: var(--warning); }
+
+    /* Form Sections */
+    .form-section {
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--border-radius-md);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-section h3 {
+        color: var(--on-surface);
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 0.5rem;
+    }
+
+    .form-section h3 i {
+        color: var(--primary);
+        font-size: 1rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--on-surface);
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        border: 1px solid var(--outline);
+        border-radius: var(--border-radius-sm);
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        transition: var(--transition-fast);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.2rem rgba(211, 47, 47, 0.25);
+        outline: none;
+    }
+
+    .form-control:hover {
+        border-color: var(--primary-light);
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* Buttons */
+    .btn-primary-profile {
+        background: var(--primary);
+        border: none;
+        border-radius: var(--border-radius-md);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        color: var(--on-primary);
+    }
+
+    .btn-primary-profile:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-outline-secondary-profile {
+        border: 1px solid var(--outline);
+        border-radius: var(--border-radius-md);
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        color: var(--on-surface);
+        background: var(--surface);
+    }
+
+    .btn-outline-secondary-profile:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--on-primary);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Success Message */
+    .alert-success {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+        padding: 1rem 1.5rem;
+        border-radius: var(--border-radius-md);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* Form validation */
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Loading */
+    .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .app-main {
+            padding: 1.5rem;
+        }
+
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            font-size: 1.5rem;
+        }
+
+        .profile-info h2 {
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .profile-card {
+            padding: 1.5rem;
+        }
+
+        .form-section {
+            padding: 1rem;
+        }
+
+        .btn-primary-profile,
+        .btn-outline-secondary-profile {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            font-size: 1.3rem;
+        }
+
+        .profile-card {
+            padding: 1rem;
+        }
+
+        .form-section {
+            padding: 0.75rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Profile Card -->
+    <div class="profile-card animate-fade-in-up">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if user.first_name %}
+                    {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+                {% else %}
+                    {{ user.username.0|upper }}
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h2>
+                    {% if user.first_name %}
+                        {{ user.first_name }} {{ user.last_name }}
+                    {% else %}
+                        {{ user.username }}
+                    {% endif %}
+                </h2>
+                <p><i class="fas fa-envelope"></i>{{ user.email }}</p>
+                <p><i class="fas fa-phone"></i>{{ user.customer_profile.phone|default:"Not provided" }}</p>
+                <p><i class="fas fa-calendar"></i>Member since {{ user.date_joined|date:"F d, Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-shopping-bag"></i>
+                <div class="stat-number">{{ total_orders|default:0 }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="stat-number">{{ active_orders|default:0 }}</div>
+                <div class="stat-label">Active Orders</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <div class="stat-number">{{ completed_orders|default:0 }}</div>
+                <div class="stat-label">Completed Orders</div>
+            </div>
+        </div>
+
+        <!-- Profile Form -->
+        <form method="post" action="{% url 'profile' %}" id="profileForm">
+            {% csrf_token %}
+
+            <!-- Personal Information -->
+            <div class="form-section">
+                <h3><i class="fas fa-user"></i>Personal Information</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name"
+                               value="{{ user.first_name|default:'' }}" placeholder="Enter your first name">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name"
+                               value="{{ user.last_name|default:'' }}" placeholder="Enter your last name">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               value="{{ user.email }}" readonly>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone" name="phone"
+                               value="{{ user.customer_profile.phone|default:'' }}" placeholder="Enter your phone number">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Information -->
+            <div class="form-section">
+                <h3><i class="fas fa-map-marker-alt"></i>Address Information</h3>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Full Address</label>
+                    <textarea class="form-control" id="address" name="address" rows="3"
+                              placeholder="Enter your full address">{{ user.customer_profile.address|default:'' }}</textarea>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-secondary-profile" onclick="window.location.href='{% url 'customer_dashboard' %}'">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary-profile" onclick="window.location.href='{% url 'password_change' %}'">
+                        Change Password
+                    </button>
+                    <button type="submit" class="btn btn-primary-profile" id="saveBtn">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('profileForm');
+        const saveBtn = document.getElementById('saveBtn');
+
+        form.addEventListener('submit', function(e) {
+            const firstName = document.getElementById('first_name').value.trim();
+            const lastName = document.getElementById('last_name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+
+            // Clear previous validation
+            document.querySelectorAll('.is-invalid').forEach(el => {
+                el.classList.remove('is-invalid');
+            });
+            document.querySelectorAll('.invalid-feedback').forEach(el => {
+                el.remove();
+            });
+
+            let isValid = true;
+
+            // Validate first name
+            if (!firstName) {
+                showFieldError('first_name', 'First name is required');
+                isValid = false;
+            }
+
+            // Validate last name
+            if (!lastName) {
+                showFieldError('last_name', 'Last name is required');
+                isValid = false;
+            }
+
+            // Validate phone
+            if (phone && !/^[\d\s\-\+\(\)]+$/.test(phone)) {
+                showFieldError('phone', 'Please enter a valid phone number');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Show loading state
+            saveBtn.innerHTML = '<span class="loading"></span> Saving...';
+            saveBtn.disabled = true;
+        });
+
+        // Phone number formatting
+        const phoneInput = document.getElementById('phone');
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                if (value.length <= 3) {
+                    value = value;
+                } else if (value.length <= 6) {
+                    value = value.slice(0, 3) + '-' + value.slice(3);
+                } else {
+                    value = value.slice(0, 3) + '-' + value.slice(3, 6) + '-' + value.slice(6, 10);
+                }
+            }
+            e.target.value = value;
+        });
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            field.classList.add('is-invalid');
+
+            const feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            feedback.textContent = message;
+
+            field.parentNode.appendChild(feedback);
+        }
+
+        // Clear field errors on input
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+                const feedback = this.parentNode.querySelector('.invalid-feedback');
+                if (feedback) {
+                    feedback.remove();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

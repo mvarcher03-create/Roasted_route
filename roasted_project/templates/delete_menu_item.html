@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Menu Item - Roasted Route</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .confirmation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.15);
+            max-width: 500px;
+            width: 100%;
+            border: 2px solid #fed7d7;
+        }
+        
+        .warning-icon {
+            font-size: 4.5rem;
+            color: #e53e3e;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            display: block;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        h2 {
+            color: #c53030;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        .warning-text {
+            color: #742a2a;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-size: 1.1rem;
+            background: #fff5f5;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #e53e3e;
+        }
+        
+        .item-details {
+            background-color: #fffaf0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid #fbd38d;
+        }
+        
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .item-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .item-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #e53e3e;
+        }
+        
+        .item-description {
+            color: #718096;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        
+        .item-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .meta-label {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            margin-bottom: 0.3rem;
+        }
+        
+        .meta-value {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .rating {
+            color: #d69e2e;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+        
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1rem;
+            min-width: 140px;
+        }
+        
+        .btn-secondary {
+            background: #fbd38d;
+            color: #744210;
+            border: 2px solid #f6ad55;
+        }
+        
+        .btn-secondary:hover {
+            background: #f6ad55;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(251, 211, 141, 0.4);
+        }
+        
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+            border: 2px solid #c53030;
+        }
+        
+        .btn-danger:hover {
+            background: #c53030;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(229, 62, 62, 0.4);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 576px) {
+            .item-meta {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .confirmation-card {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #fbd38d;
+        }
+        
+        .modal-icon {
+            font-size: 3rem;
+            color: #38a169;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-success {
+            background: #38a169;
+            color: white;
+            border: 2px solid #2f855a;
+        }
+        
+        .btn-success:hover {
+            background: #2f855a;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .final-confirmation-modal {
+            border: 2px solid #e53e3e;
+        }
+        
+        .final-confirmation-modal h3 {
+            color: #c53030;
+            margin-bottom: 1rem;
+        }
+        
+        .final-confirmation-modal p {
+            color: #742a2a;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: #4a5568;
+            border: 2px solid #a0aec0;
+        }
+        
+        .btn-outline:hover {
+            background: #f7fafc;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Hidden form for actual deletion */
+        .hidden-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirmation-card">
+        <div class="text-center">
+            <div class="warning-icon pulse">⚠️</div>
+            <h2>Confirm Deletion</h2>
+            <p class="warning-text">Are you sure you want to delete "<strong>{{ menu_item.name }}</strong>"? This action cannot be undone.</p>
+        </div>
+        
+        <div class="item-details">
+            <span class="status-badge">{% if menu_item.available %}Available{% else %}Unavailable{% endif %}</span>
+            
+            <div class="item-header">
+                <h3 class="item-title">{{ menu_item.name }}</h3>
+                <div class="item-price">₱{{ menu_item.price }}</div>
+            </div>
+            
+            <p class="item-description">{{ menu_item.description|default:"No description" }}</p>
+            
+            <div class="item-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Category</span>
+                    <span class="meta-value">{{ menu_item.get_category_display }}</span>
+                </div>
+                
+                <div class="meta-item">
+                    <span class="meta-label">Stock</span>
+                    <span class="meta-value">{{ menu_item.stock }} pcs</span>
+                </div>
+            </div>
+            
+            <div class="rating">
+                ★★★★☆ <span style="color: #a0aec0; font-size: 0.9rem;"> ({{ menu_item.review_count|default:"0" }})</span>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'menu_management' %}" class="btn btn-secondary" id="cancelBtn">
+                Cancel
+            </a>
+            <button class="btn btn-danger" id="deleteBtn">
+                Delete Item
+            </button>
+        </div>
+        
+        <!-- Hidden form for actual deletion -->
+        <form method="POST" action="{% url 'delete_menu_item' menu_item.id %}" class="hidden-form" id="deleteForm">
+            {% csrf_token %}
+        </form>
+    </div>
+    
+    <!-- Final Confirmation Modal -->
+    <div class="modal" id="finalConfirmationModal">
+        <div class="modal-content final-confirmation-modal">
+            <div class="warning-icon">⚠️</div>
+            <h3>Final Confirmation</h3>
+            <p>Are you absolutely sure you want to delete "{{ menu_item.name }}"? This action is permanent and cannot be reversed.</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" id="finalCancelBtn">
+                    Cancel
+                </button>
+                <button class="btn btn-danger" id="finalDeleteBtn">
+                    <span class="spinner" id="deleteSpinner"></span>
+                    Delete Permanently
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all the buttons and modals
+            const deleteBtn = document.getElementById('deleteBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const finalConfirmationModal = document.getElementById('finalConfirmationModal');
+            const finalCancelBtn = document.getElementById('finalCancelBtn');
+            const finalDeleteBtn = document.getElementById('finalDeleteBtn');
+            const deleteSpinner = document.getElementById('deleteSpinner');
+            const deleteForm = document.getElementById('deleteForm');
+            
+            // Delete button functionality - shows final confirmation modal
+            deleteBtn.addEventListener('click', function() {
+                finalConfirmationModal.style.display = 'flex';
+            });
+            
+            // Final confirmation modal - cancel button
+            finalCancelBtn.addEventListener('click', function() {
+                finalConfirmationModal.style.display = 'none';
+            });
+            
+            // Final confirmation modal - delete button
+            finalDeleteBtn.addEventListener('click', function() {
+                // Show loading spinner
+                deleteSpinner.style.display = 'inline-block';
+                finalDeleteBtn.disabled = true;
+                
+                // Submit the form after a brief delay to show loading state
+                setTimeout(() => {
+                    deleteForm.submit();
+                }, 1000);
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === finalConfirmationModal) {
+                    finalConfirmationModal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

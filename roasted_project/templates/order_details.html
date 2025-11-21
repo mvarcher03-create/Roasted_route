@@ -1,0 +1,256 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Order Details - Roasted Route{% endblock %}
+
+{% block nav_orders_active %}active{% endblock %}
+
+{% block page_header %}Order #{{ order.order_number }} Details{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root {
+        --od-red:#DC2626;
+        --od-yellow:#F59E0B;
+        --od-white:#ffffff;
+        --od-gray-50:#F9FAFB;
+        --od-gray-100:#F3F4F6;
+        --od-gray-200:#E5E7EB;
+        --od-gray-600:#4B5563;
+        --od-gray-700:#374151;
+        --od-gray-900:#111827;
+    }
+
+    .order-detail-wrapper {
+        background: linear-gradient(135deg, var(--od-gray-50), var(--od-gray-100));
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .order-summary-card {
+        background: var(--od-white);
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        border: 1px solid var(--od-gray-100);
+        margin-bottom: 20px;
+    }
+
+    .order-meta {
+        font-size: 0.95rem;
+        color: var(--od-gray-700);
+    }
+
+    .order-meta i {
+        color: var(--od-red);
+    }
+
+    .badge-status {
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending{ background:#fef3c7; color:#92400e; }
+    .status-preparing{ background:#e0f2fe;color:#075985; }
+    .status-ready{ background:#dcfce7;color:#065f46; }
+    .status-out_for_delivery{ background:#e0e7ff;color:#3730a3; }
+    .status-delivered,.status-completed{ background:#dcfce7;color:#065f46; }
+    .status-cancelled{ background:#fee2e2;color:#991b1b; }
+
+    .delivery-type {
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        padding:4px 10px;
+        border-radius:8px;
+        font-size:.85rem;
+        font-weight:600;
+    }
+    .delivery-delivery { background:#eff6ff; color:#1e40af; }
+    .delivery-pickup { background:#f0fdf4; color:#166534; }
+
+    .items-card {
+        background: var(--od-white);
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        border: 1px solid var(--od-gray-100);
+        margin-bottom: 20px;
+    }
+
+    .items-list {
+        color: var(--od-gray-700);
+        font-size: .95rem;
+    }
+
+    .items-list .addon {
+        font-size: .85rem;
+        color: #6b7280;
+    }
+
+    .total-amount {
+        font-weight: 800;
+        color: var(--od-red);
+        font-size: 1.6rem;
+    }
+
+    .section-title {
+        font-weight: 700;
+        color: var(--od-gray-900);
+        margin-bottom: 0.75rem;
+    }
+
+    .back-link {
+        text-decoration: none;
+        font-weight: 600;
+        color: var(--od-red);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .order-summary-card, .items-card {
+            padding: 16px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <a href="{% url 'view_orders' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Orders
+        </a>
+        <span class="badge-status status-{{ order.status }}">
+            {{ order.get_status_display_with_icon }}
+        </span>
+    </div>
+
+    <!-- Order summary -->
+    <div class="order-summary-card">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <h5 class="section-title">Order Information</h5>
+                <div class="order-meta mb-1">
+                    <i class="fas fa-hashtag me-1"></i>
+                    <strong>{{ order.order_number }}</strong> (ID: {{ order.id }})
+                </div>
+                <div class="order-meta mb-1">
+                    <i class="far fa-clock me-1"></i>
+                    {{ order.created_at|date:"M d, Y h:i A" }}
+                </div>
+                <div class="order-meta mb-1">
+                    <span class="delivery-type delivery-{{ order.delivery_type }}">
+                        <i class="fas fa-{% if order.delivery_type == 'delivery' %}truck{% else %}store{% endif %} me-1"></i>
+                        {{ order.delivery_type|title }}
+                    </span>
+                </div>
+                {% if order.payment_method %}
+                <div class="order-meta mb-1">
+                    <i class="fas fa-wallet me-1"></i>
+                    Payment: {{ order.payment_method|title }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6">
+                <h5 class="section-title">Customer</h5>
+                <div class="order-meta mb-1">
+                    <i class="fas fa-user me-1"></i>
+                    {{ order.customer_name }}
+                </div>
+                {% if order.contact_number and order.contact_number != 'not Provided' %}
+                <div class="order-meta mb-1">
+                    <i class="fas fa-phone me-1"></i>
+                    {{ order.contact_number }}
+                </div>
+                {% endif %}
+                {% if order.address %}
+                <div class="order-meta mb-1">
+                    <i class="fas fa-map-marker-alt me-1"></i>
+                    {{ order.address }}
+                </div>
+                {% endif %}
+                {% if order.note %}
+                <div class="order-meta mt-2">
+                    <i class="fas fa-sticky-note me-1"></i>
+                    <span class="text-muted">{{ order.note }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <hr class="my-3" />
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="order-meta">
+                <span class="text-muted">Current status:</span>
+                <strong class="ms-1">{{ order.get_status_display }}</strong>
+            </div>
+            <div class="text-end">
+                <div class="text-muted small">
+                    Items: ₱{{ order.items_subtotal|floatformat:2 }}{% if order.delivery_fee %} • Delivery: ₱{{ order.delivery_fee|floatformat:2 }}{% endif %}
+                </div>
+                <div class="text-muted small">Order Total</div>
+                <div class="total-amount">₱{{ order.computed_total|floatformat:2 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items -->
+    <div class="items-card">
+        <h5 class="section-title">Items</h5>
+        <div class="items-list">
+            {% for item in order.items.all %}
+                <div class="mb-3 pb-3 {% if not forloop.last %}border-bottom border-light{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <div>
+                            <strong>{{ item.menu_item.name }}</strong>
+                            <span class="badge bg-secondary rounded-pill ms-1">{{ item.quantity }}x</span>
+                            <div class="text-muted small">
+                                Unit price: ₱{{ item.unit_price|floatformat:2 }}
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted small">Item Total</div>
+                            <div class="fw-bold">₱{{ item.total_price|floatformat:2 }}</div>
+                        </div>
+                    </div>
+
+                    {% if item.customization %}
+                    <div class="addon mt-1">
+                        {% if item.customization.addOns or item.customization.addons %}
+                            Customizations:
+                            {% if item.customization.addOns %}
+                                {% for a in item.customization.addOns %}
+                                    {{ a.name }}{% if a.price %} (+₱{{ a.price|floatformat:2 }}){% endif %}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if item.customization.addons %}
+                                {% for a in item.customization.addons %}
+                                    {{ a.label }}{% if a.price %} (+₱{{ a.price|floatformat:2 }}){% endif %}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p class="text-muted mb-0">No items found for this order.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}{% endblock %}

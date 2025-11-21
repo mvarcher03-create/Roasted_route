@@ -1,0 +1,470 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}My Orders - Roasted Route{% endblock %}
+{% block nav_my_orders_active %}active{% endblock %}
+{% block page_header %}My Orders{% endblock %}
+
+{% block extra_head %}
+    <style>
+        /* Reuse the same order card styles as the dashboard Active Orders section */
+        .orders-page {
+            background: linear-gradient(135deg, rgba(252, 211, 77, 0.08), rgba(248, 113, 113, 0.12));
+            padding-bottom: 2.5rem;
+        }
+
+        .orders-header-row {
+            margin-bottom: 1.5rem;
+        }
+
+        .orders-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--on-surface);
+            opacity: 0.85;
+            margin-bottom: 1rem;
+        }
+
+        .orders-summary-pill {
+            padding: 0.25rem 0.9rem;
+            border-radius: 999px;
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .orders-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .order-card {
+            background: var(--surface);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--outline);
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .order-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem 1.5rem;
+            padding: 1.1rem 1.25rem;
+            border-bottom: 1px solid var(--outline);
+            background: var(--background);
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .order-number {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .order-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.1rem;
+        }
+
+        .order-date,
+        .order-type {
+            font-size: 0.8rem;
+            color: var(--on-surface);
+            opacity: 0.85;
+            padding: 0.2rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.03);
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .order-status {
+            text-align: right;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-pending { background: var(--warning); color: var(--on-primary); }
+        .status-preparing { background: var(--info); color: var(--on-primary); }
+        .status-ready { background: var(--success); color: var(--on-primary); }
+        .status-out_for_delivery { background: var(--primary); color: var(--on-primary); }
+        .status-delivered { background: var(--success); color: var(--on-primary); }
+        .status-completed { background: var(--success); color: var(--on-primary); }
+        .status-cancelled { background: var(--error); color: var(--on-primary); }
+
+        .order-card.status-pending { border-left-color: var(--warning); }
+        .order-card.status-preparing { border-left-color: var(--info); }
+        .order-card.status-ready { border-left-color: var(--success); }
+        .order-card.status-out_for_delivery { border-left-color: var(--primary); }
+        .order-card.status-delivered { border-left-color: var(--success); }
+        .order-card.status-completed { border-left-color: var(--success); }
+        .order-card.status-cancelled { border-left-color: var(--error); }
+
+        .order-content {
+            padding: 1.25rem;
+        }
+
+        .order-items {
+            margin-bottom: 1rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--outline);
+            gap: 0.5rem;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .item-addons {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.15rem;
+            line-height: 1.4;
+        }
+
+        .item-quantity {
+            color: var(--on-surface);
+            opacity: 0.7;
+            margin: 0 1rem;
+            white-space: nowrap;
+        }
+
+        .item-price {
+            font-weight: 600;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .order-total {
+            text-align: right;
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .order-notification {
+            border-radius: var(--border-radius-sm);
+            margin-top: 1rem;
+            padding: 1rem 1.25rem;
+            border: none;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .order-notification i {
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+            font-size: 1.1rem;
+        }
+
+        .order-notification strong {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .order-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--outline);
+            background: var(--background);
+            text-align: right;
+        }
+
+        .btn-view {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.35rem 0.9rem;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: var(--border-radius-md);
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .btn-view:hover {
+            background: var(--primary);
+            color: var(--on-primary);
+            text-decoration: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6C757D;
+            background: var(--surface);
+            border-radius: var(--border-radius-lg);
+            border: 1px dashed var(--outline);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="orders-page">
+        <div class="container py-4">
+        <div class="section-header d-flex justify-content-between align-items-center flex-wrap gap-2 orders-header-row">
+            <h2 class="section-title mb-0">
+                <div class="section-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                My Orders
+            </h2>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>Refresh status
+            </button>
+        </div>
+
+        {% if orders %}
+            <div class="orders-summary">
+                <span class="orders-summary-pill">
+                    {{ orders.count }} active order{% if orders.count != 1 %}s{% endif %}
+                </span>
+                <span>These are your current orders in progress.</span>
+            </div>
+            <div class="orders-container">
+                {% for order in orders %}
+                <div class="order-card animate-fade-in-up status-{{ order.status }}">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <div class="order-number">
+                                <i class="fas fa-hashtag me-1"></i>{{ order.order_number }}
+                            </div>
+                            <div class="order-meta">
+                                <div class="order-date">
+                                    <i class="far fa-clock me-1"></i>{{ order.created_at|date:"M d, Y h:i A" }}
+                                </div>
+                                <div class="order-type">
+                                    <i class="fas fa-{% if order.delivery_type == 'delivery' %}truck{% else %}store{% endif %} me-1"></i>
+                                    {{ order.delivery_type|title }}
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                Payment: {{ order.get_payment_method_display }}
+                                <span class="mx-1">•</span>
+                                {% if order.status == 'pending' %}
+                                    Estimated: We'll start preparing your order soon
+                                {% elif order.status == 'preparing' %}
+                                    Estimated: 20–30 minutes
+                                {% elif order.status == 'ready' %}
+                                    Estimated: Ready for pickup shortly
+                                {% elif order.status == 'out_for_delivery' %}
+                                    Estimated: On the way
+                                {% else %}
+                                    Estimated: Updating
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge status-{{ order.status }}">
+                                {{ order.get_status_display_with_icon|default:order.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="order-content">
+                        <div class="order-items">
+                            {% for item in order.items.all %}
+                            <div class="order-item">
+                                <div class="item-name">
+                                    {{ item.menu_item.name }}
+                                    {% if item.customization.addOns or item.customization.addons %}
+                                    <div class="item-addons">
+                                        {% if item.customization.addOns %}
+                                            {% for a in item.customization.addOns %}
+                                                • {{ a.label }}{% if a.price %} (+₱{{ a.price|floatformat:2 }}){% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                        {% if item.customization.addons %}
+                                            {% for a in item.customization.addons %}
+                                                • {{ a.label }}{% if a.price %} (+₱{{ a.price|floatformat:2 }}){% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <span class="item-quantity">{{ item.quantity }}x</span>
+                                <span class="item-price">₱{{ item.total_price|floatformat:2 }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="order-total">
+                            Total to pay: ₱{{ order.computed_total|floatformat:2 }}
+                            <div class="text-muted small">
+                                Items: ₱{{ order.items_subtotal|floatformat:2 }}{% if order.delivery_fee %} • Delivery: ₱{{ order.delivery_fee|floatformat:2 }}{% endif %}
+                            </div>
+                        </div>
+
+                        {% if order.payment_method == 'gcash' %}
+                        <div class="order-notification alert alert-warning mt-3">
+                            <i class="fas fa-mobile-alt me-2"></i>
+                            <div>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                                    <strong>GCash payment</strong>
+                                    <span class="badge bg-secondary">{{ order.get_payment_status_display }}</span>
+                                </div>
+
+                                {% if gcash_settings and gcash_settings.gcash_number %}
+                                <div class="small mb-1">
+                                    GCash Number: <span class="fw-semibold">{{ gcash_settings.gcash_number }}</span>
+                                </div>
+                                {% endif %}
+
+                                {% if order.payment_proof %}
+                                    {% if order.payment_status == 'for_verification' %}
+                                        <div class="small text-muted mb-1">
+                                            Your receipt is uploaded and is waiting for admin verification.
+                                        </div>
+                                    {% elif order.payment_status == 'paid' %}
+                                        <div class="small text-success mb-1">
+                                            Your payment has been verified. Thank you!
+                                        </div>
+                                    {% elif order.payment_status == 'rejected' %}
+                                        <div class="small text-danger mb-1">
+                                            Your previous payment proof was rejected. You may upload a new screenshot below.
+                                        </div>
+                                    {% endif %}
+                                    <div class="small mb-2">
+                                        <a href="{{ order.payment_proof.url }}" target="_blank" class="link-secondary">View uploaded receipt</a>
+                                    </div>
+                                {% else %}
+                                    <div class="small text-muted mb-1">
+                                        After paying via your GCash app, upload a clear screenshot of your receipt so we can verify your payment.
+                                    </div>
+                                {% endif %}
+
+                                {% if order.payment_status == 'waiting_payment' or order.payment_status == 'rejected' or not order.payment_proof and order.payment_status != 'paid' %}
+                                <form method="post" action="{% url 'upload_payment_proof' order.id %}" enctype="multipart/form-data" class="mt-2">
+                                    {% csrf_token %}
+                                    <div class="mb-2 small">
+                                        <label for="gcash_proof_{{ order.id }}" class="form-label mb-1">Upload GCash receipt (JPG/PNG only)</label>
+                                        <input type="file" id="gcash_proof_{{ order.id }}" name="payment_proof" accept="image/*" required class="form-control form-control-sm">
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-upload me-1"></i>Upload for verification
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if order.delivery_type == 'pickup' and order.status == 'ready' %}
+                        <div class="order-notification alert alert-info mt-3">
+                            <i class="fas fa-bell me-2"></i>
+                            <div>
+                                <strong>Your order is ready for pickup!</strong>
+                                Please come to our store to collect your order and pay at the counter.
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if order.delivery_type == 'delivery' and order.status == 'out_for_delivery' %}
+                        <div class="order-notification alert alert-primary mt-3">
+                            <i class="fas fa-truck me-2"></i>
+                            <div>
+                                <strong>Your order is out for delivery!</strong>
+                                Our rider is on the way to your location.
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if order.delivery_type == 'delivery' and order.status == 'delivered' %}
+                        <div class="order-notification alert alert-success mt-3">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <div>
+                                <strong>Your order has been delivered!</strong>
+                                Thank you for your purchase.
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="order-footer">
+                        {% if order.status == 'pending' %}
+                        <form method="post" action="{% url 'customer_cancel_order' order.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-times me-1"></i>Cancel order
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="mailto:support@example.com" class="btn-view ms-2">
+                            <i class="fas fa-headset me-1"></i>Contact support
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h4>No active orders</h4>
+                <p>You don't have any ongoing orders right now.</p>
+                <a class="btn btn-danger btn-lg" href="{% url 'order_now' %}"><i class="fas fa-utensils me-2"></i>Order Now</a>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}
+

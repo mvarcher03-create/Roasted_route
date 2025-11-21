@@ -1,0 +1,1049 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}View Orders - Roasted Route{% endblock %}
+
+{% block nav_orders_active %}active{% endblock %}
+
+{% block page_header %}View Orders{% endblock %}
+
+{% block extra_head %}
+<style>
+    :root { 
+        --red:#DC2626; 
+        --yellow:#F59E0B; 
+        --white:#fff; 
+        --gray-50:#F9FAFB; 
+        --gray-100:#F3F4F6; 
+        --gray-200:#E5E7EB; 
+        --gray-600:#4B5563; 
+        --gray-700:#374151; 
+        --gray-900:#111827; 
+    }
+
+    .view-orders-wrapper {
+        background: #f3f4f6;
+        color: var(--gray-900);
+        border-radius: 18px;
+        padding: 20px;
+    }
+
+    .stats { 
+        display:flex; 
+        gap:18px; 
+        flex-wrap:wrap; 
+        justify-content:flex-start;
+    }
+    .stat { 
+        background:var(--white); 
+        border:1px solid var(--gray-100); 
+        border-radius:18px; 
+        padding:22px 26px; 
+        min-width:220px; 
+        min-height:120px;
+        flex:1 1 230px;
+        text-align:center; 
+        box-shadow:0 6px 16px rgba(0,0,0,.06); 
+    }
+    .stat .num { 
+        font-weight:800; 
+        font-size:2.1rem; 
+        color:var(--red); 
+    }
+    .stat .lbl { 
+        color:var(--gray-600); 
+        font-size:1rem; 
+        margin-top:6px; 
+    }
+
+    .orders-container {
+        margin-top: 16px;
+    }
+
+    .order-card {
+        background: transparent;
+        border-radius: 0;
+        padding: 16px 0;
+        box-shadow: none;
+        border-bottom: 1px solid var(--gray-200);
+        margin: 0;
+    }
+
+    .order-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .orders-container .order-card:last-child {
+        border-bottom: none;
+    }
+    .order-header { display:flex; justify-content:space-between; align-items:start; gap:16px; flex-wrap:wrap; }
+    .order-id { font-weight:800; font-size:1.1rem; color:var(--gray-900); }
+    .order-date { color:var(--gray-600); font-size:.9rem; margin-top:4px; }
+    .customer-info { color:var(--gray-700); font-size:.95rem; margin-top:4px; }
+    
+    .badge-status { border-radius:999px; padding:8px 12px; font-weight:700; font-size:.85rem; text-transform:uppercase; letter-spacing:0.5px; }
+    .status-pending{ background:#fef3c7; color:#92400e; }
+    .status-preparing{ background:#e0f2fe;color:#075985; }
+    .status-ready{ background:#dcfce7;color:#065f46; }
+    .status-out_for_delivery{ background:#e0e7ff;color:#3730a3; }
+    .status-delivered,.status-completed{ background:#dcfce7;color:#065f46; }
+    .status-cancelled{ background:#fee2e2;color:#991b1b; }
+
+    .items-list { color:var(--gray-700); font-size:.95rem; }
+    .items-list .addon { font-size:.85rem; color:#6b7280; }
+    .total { font-weight:800; color:var(--red); font-size:1.3rem; }
+    
+    .delivery-type { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:8px; font-size:.85rem; font-weight:600; }
+    .delivery-delivery { background:#eff6ff; color:#1e40af; }
+    .delivery-pickup { background:#f0fdf4; color:#166534; }
+
+    .action-btn { border-radius:10px; padding:.6rem 1rem; font-weight:600; font-size:.9rem; transition:all 0.3s; }
+    .action-btn:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.15); }
+
+    .status-update-form { 
+        display:inline; 
+        width: 100%;
+    }
+    
+    .status-select { 
+        border-radius:8px; 
+        border:1px solid var(--gray-200); 
+        padding:8px 12px; 
+        font-size:.9rem; 
+        font-weight:600; 
+        min-width: 200px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .status-select:focus {
+        border-color: var(--red);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        outline: none;
+    }
+    
+    .status-update-btn {
+        border-radius:8px; 
+        padding:8px 16px; 
+        font-weight:600; 
+        font-size:.9rem; 
+        border: none;
+        background: var(--red);
+        color: white;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 100px;
+        justify-content: center;
+    }
+    
+    .status-update-btn:hover {
+        background: var(--gray-600);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+    
+    .status-update-btn:active {
+        transform: translateY(0);
+    }
+    
+    .status-update-btn.loading {
+        background: var(--gray-600);
+        pointer-events: none;
+    }
+    
+    .status-update-btn.loading i {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .status-update-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .status-update-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .status-update-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        white-space: nowrap;
+    }
+    
+    .filter-section { 
+        background:var(--white); 
+        border-radius:12px; 
+        padding:16px; 
+        margin:16px 0 20px 0; 
+        box-shadow:0 2px 8px rgba(0,0,0,.05); 
+    }
+    .filter-btn { border-radius:8px; padding:8px 16px; font-weight:600; font-size:.9rem; border:1px solid var(--gray-200); background:var(--white); color:var(--gray-700); transition:all 0.3s; }
+    .filter-btn:hover, .filter-btn.active { background:var(--red); color:var(--white); border-color:var(--red); }
+
+    .date-range-bar {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .date-range-label {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .date-range-current {
+        font-weight: 600;
+        color: var(--gray-900);
+        font-size: 0.9rem;
+    }
+
+    .date-range-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .date-range-btn {
+        border-radius: 999px;
+        border: 1px solid var(--gray-200);
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: var(--white);
+        color: var(--gray-700);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .date-range-btn:hover {
+        background: var(--gray-100);
+        border-color: var(--gray-200);
+    }
+
+    .date-range-btn.active {
+        background: var(--red);
+        border-color: var(--red);
+        color: var(--white);
+        box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3);
+    }
+
+    .empty-state { text-align:center; padding:60px 20px; }
+    .empty-state i { font-size:4rem; color:var(--gray-400); margin-bottom:20px; }
+    .empty-state h4 { color:var(--gray-600); margin-bottom:12px; }
+    .empty-state p { color:var(--gray-500); margin-bottom:24px; }
+    
+    /* Responsive layout tweaks for tablets/phones */
+    @media (max-width: 768px) {
+        .view-orders-wrapper {
+            padding: 12px;
+        }
+
+        .order-card {
+            padding: 12px 0;
+        }
+
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .stat {
+            min-width: 100%;
+            text-align: left;
+        }
+
+        .filter-section {
+            padding: 12px;
+        }
+
+        .date-range-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .status-update-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+        }
+        
+        .status-select {
+            width: 100%;
+            min-width: auto;
+            font-size: 0.875rem;
+            padding: 10px 12px;
+        }
+        
+        .status-update-btn {
+            width: 100%;
+            padding: 10px 16px;
+            font-size: 0.875rem;
+        }
+        
+        .status-update-label {
+            margin-bottom: 4px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .order-id {
+            font-size: 1rem;
+        }
+
+        .total {
+            font-size: 1.1rem;
+        }
+
+        .badge-status {
+            font-size: 0.8rem;
+            padding: 6px 10px;
+        }
+
+        .status-select {
+            padding: 12px;
+            font-size: 0.85rem;
+        }
+        
+        .status-update-btn {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+        }
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.2s ease;
+    }
+    
+    .modal {
+        display: block; /* Override Bootstrap's display:none for .modal */
+        position: relative;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 90%;
+        animation: slideUp 0.3s ease;
+    }
+    
+    .modal-header {
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .modal-body p {
+        margin: 0 0 1rem 0;
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+    
+    .modal-order-number {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: #fef2f2;
+        color: #dc2626;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        border: 1px solid #fecaca;
+    }
+    
+    .modal-footer {
+        padding: 1rem 1.5rem 1.5rem 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+    
+    .modal-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 100px;
+        justify-content: center;
+    }
+    
+    .modal-btn-cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    .modal-btn-cancel:hover {
+        background: #e5e7eb;
+        color: #4b5563;
+    }
+    
+    .modal-btn-confirm {
+        background: #ef4444;
+        color: white;
+    }
+    
+    .modal-btn-confirm:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from { 
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to { 
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+    
+    @media (max-width: 768px) {
+        .modal {
+            width: 95%;
+            margin: 1rem;
+        }
+        
+        .modal-footer {
+            flex-direction: column;
+        }
+        
+        .modal-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="view-orders-wrapper">
+        <!-- Period Selector -->
+        <div class="date-range-bar">
+            <div class="date-range-label">
+                <span class="text-muted small">Date Range</span>
+                <span class="date-range-current">{{ period_label }}</span>
+            </div>
+            <div class="date-range-chips" aria-label="Select date range">
+                <a href="?period=all{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}" class="date-range-btn {% if period == 'all' %}active{% endif %}">All Time</a>
+                <a href="?period=today{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}" class="date-range-btn {% if period == 'today' %}active{% endif %}">Today</a>
+                <a href="?period=week{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}" class="date-range-btn {% if period == 'week' %}active{% endif %}">This Week</a>
+                <a href="?period=month{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}" class="date-range-btn {% if period == 'month' %}active{% endif %}">This Month</a>
+                <a href="?period=year{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}" class="date-range-btn {% if period == 'year' %}active{% endif %}">This Year</a>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats">
+            <div class="stat">
+                <div class="num">{{ orders_today }}</div>
+                <div class="lbl">Orders ({{ period_label }})</div>
+            </div>
+            <div class="stat">
+                <div class="num">{{ pending_orders }}</div>
+                <div class="lbl">Pending ({{ period_label }})</div>
+            </div>
+            <div class="stat">
+                <div class="num">{{ completed_orders }}</div>
+                <div class="lbl">Completed ({{ period_label }})</div>
+            </div>
+            <div class="stat">
+                <div class="num">₱{{ total_sales|floatformat:2 }}</div>
+                <div class="lbl">Total Sales ({{ period_label }})</div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="filter-btn active" onclick="filterOrders('all')">All Orders</button>
+                <button class="filter-btn" onclick="filterOrders('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterOrders('preparing')">Preparing</button>
+                <button class="filter-btn" onclick="filterOrders('ready')">Ready</button>
+                <button class="filter-btn" onclick="filterOrders('out_for_delivery')">Out for Delivery</button>
+                <button class="filter-btn" onclick="filterOrders('delivered')">Delivered</button>
+                <button class="filter-btn" onclick="filterOrders('completed')">Completed</button>
+                <button class="filter-btn" onclick="filterOrders('cancelled')">Cancelled</button>
+            </div>
+
+            <form method="get" class="mt-3">
+                <input type="hidden" name="period" value="{{ period }}">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input
+                                type="text"
+                                name="q"
+                                value="{{ search_query }}"
+                                class="form-control"
+                                placeholder="Search by order #, customer, phone, or address">
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                            Search
+                        </button>
+                        {% if search_query %}
+                        <a href="?period={{ period }}" class="btn btn-sm btn-link text-muted">
+                            Clear
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Orders List -->
+        {% if orders %}
+        <div class="orders-container mt-3">
+            {% for order in orders %}
+            <div class="order-card" data-status="{{ order.status }}">
+                <div class="order-header">
+                    <div class="flex-grow-1">
+                        <div class="order-id">
+                            <i class="fas fa-hashtag me-1"></i>{{ order.order_number }} 
+                            <span class="delivery-type delivery-{{ order.delivery_type }}">
+                                <i class="fas fa-{% if order.delivery_type == 'delivery' %}truck{% else %}store{% endif %} me-1"></i>
+                                {{ order.delivery_type|title }}
+                            </span>
+                        </div>
+                        <div class="order-date">
+                            <i class="far fa-clock me-1"></i>{{ order.created_at|date:"M d, Y h:i A" }}
+                        </div>
+                        <div class="customer-info">
+                            <i class="fas fa-user me-1"></i>{{ order.customer_name }}
+                            {% if order.contact_number != 'not Provided' %}
+                            <i class="fas fa-phone ms-3 me-1"></i>{{ order.contact_number }}
+                            {% endif %}
+                            {% if order.address %}
+                            <i class="fas fa-map-marker-alt ms-3 me-1"></i>{{ order.address|truncatechars:50 }}
+                            {% endif %}
+                        </div>
+                        {% if order.note %}
+                        <div class="customer-info text-muted">
+                            <i class="fas fa-sticky-note me-1"></i>{{ order.note }}
+                        </div>
+                        {% endif %}
+                        {% if confirmed_order_ids and order.id in confirmed_order_ids %}
+                        <div class="mt-2">
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i>Customer confirmed delivery
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex flex-column align-items-end gap-2">
+                        <span class="badge-status status-{{ order.status }}">
+                            {{ order.get_status_display_with_icon }}
+                        </span>
+                        <div class="total">₱{{ order.computed_total|floatformat:2 }}</div>
+                        <div class="text-muted small">{{ order.payment_method|title }}</div>
+                    </div>
+                </div>
+                
+                <hr class="my-3"/>
+                
+                <!-- Order Items -->
+                <div class="items-list mb-3">
+                    <strong class="text-muted d-block mb-2">Order Items:</strong>
+                    {% for item in order.items.all %}
+                        <div class="mb-2 pb-2 {% if not forloop.last %}border-bottom border-light{% endif %}">
+                            <div>
+                                <strong>{{ item.menu_item.name }}</strong> 
+                                <span class="badge bg-secondary rounded-pill">{{ item.quantity }}x</span>
+                                <span class="text-muted">• ₱{{ item.unit_price|floatformat:2 }} each</span>
+                            </div>
+                            <div class="text-muted small">
+                                Item Total: ₱{{ item.total_price|floatformat:2 }}
+                                {% if item.customization %}
+                                    <div class="addon mt-1">
+                                        {% if item.customization.addOns or item.customization.addons %}
+                                            Customizations:
+                                            {% if item.customization.addOns %}
+                                                {% for a in item.customization.addOns %}
+                                                    {{ a.name }}{% if a.price %} (+₱{{ a.price|floatformat:2 }}){% endif %}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if item.customization.addons %}
+                                                {% for a in item.customization.addons %}
+                                                    {{ a.label }}{% if a.price %} (+₱{{ a.price|floatformat:2 }}){% endif %}{% if not forloop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Order Actions -->
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <div class="d-flex gap-2 order-1">
+                        <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary action-btn">
+                            <i class="fas fa-eye me-1"></i>View Details
+                        </a>
+                        {% if order.status != 'cancelled' and order.status != 'completed' and order.status != 'delivered' %}
+                            <button type="button" class="btn btn-outline-danger action-btn cancel-order-btn" data-order-id="{{ order.id }}" data-cancel-url="{% url 'cancel_order' order.id %}">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </button>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Status Update -->
+                    {% if order.status != 'cancelled' and order.status != 'completed' and order.status != 'delivered' %}
+                    <div class="status-update-container ms-auto order-2">
+                        <form class="status-update-form" method="POST" action="{% url 'update_order_status' order.id %}" data-order-id="{{ order.id }}">
+                            {% csrf_token %}
+                            <div class="status-update-row">
+                                <label class="status-update-label">Update Status:</label>
+                                <select name="status" class="status-select" aria-label="Update order status">
+                                    <option value="{{ order.status }}" selected>{{ order.get_status_display }}</option>
+                                    {% for status_value, status_display in order.STATUS_CHOICES %}
+                                        {% if status_value in order.get_available_status_updates %}
+                                            <option value="{{ status_value }}">
+                                                {% if order.delivery_type == 'delivery' %}
+                                                    {% if status_value == 'preparing' %}🍳 Start Preparing
+                                                    {% elif status_value == 'out_for_delivery' %}🚚 Out for Delivery
+                                                    {% elif status_value == 'delivered' %}✅ Mark as Delivered
+                                                    {% elif status_value == 'cancelled' %}❌ Cancel Order
+                                                    {% else %}{{ status_display }}
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if status_value == 'preparing' %}🍳 Start Preparing
+                                                    {% elif status_value == 'ready' %}📦 Ready for Pickup
+                                                    {% elif status_value == 'completed' %}✅ Mark as Completed
+                                                    {% elif status_value == 'cancelled' %}❌ Cancel Order
+                                                    {% else %}{{ status_display }}
+                                                    {% endif %}
+                                                {% endif %}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <button type="button" class="status-update-btn">
+                                    <i class="fas fa-check"></i>
+                                    <span>Update</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+                </div>
+
+                {% if order.payment_method == 'gcash' %}
+                <div class="mt-3 p-3 rounded" style="background-color: #FEFCE8; border: 1px solid #E5E7EB;">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <div class="small text-muted mb-1">GCash Payment</div>
+                            <div class="fw-semibold mb-1">
+                                Status:
+                                <span class="badge bg-secondary">{{ order.get_payment_status_display }}</span>
+                            </div>
+                            {% if order.payment_proof %}
+                            <div class="mt-1 small">
+                                <a href="{{ order.payment_proof.url }}" target="_blank" class="link-secondary">View payment proof</a>
+                            </div>
+                            {% else %}
+                            <div class="mt-1 small text-muted">No payment proof uploaded yet.</div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <form method="post" action="{% url 'update_payment_status' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="payment_status" value="paid">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-check me-1"></i>Mark as Paid
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'update_payment_status' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="payment_status" value="rejected">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-times me-1"></i>Reject
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'update_payment_status' order.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="payment_status" value="for_verification">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-hourglass-half me-1"></i>For Verification
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+        <div class="empty-state mt-4">
+            <i class="fas fa-receipt"></i>
+            <h4>No Orders Found</h4>
+            <p>There are no orders in the system yet.</p>
+            <a class="btn btn-danger btn-lg" href="{% url 'admin_dashboard' %}">
+                <i class="fas fa-tachometer-alt me-2"></i>Back to Dashboard
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function initViewOrdersPage() {
+        // Add event listeners for cancel order buttons
+        document.querySelectorAll('.cancel-order-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.dataset.orderId;
+                const cancelUrl = this.dataset.cancelUrl;
+                showCancelModal(orderId, cancelUrl);
+            });
+        });
+
+        // Add event listeners for status update buttons (AJAX-only)
+        document.querySelectorAll('.status-update-form').forEach(form => {
+            const updateBtn = form.querySelector('.status-update-btn');
+            if (updateBtn) {
+                updateBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const orderId = form.dataset.orderId;
+                    updateStatus(form, orderId);
+                });
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initViewOrdersPage);
+    } else {
+        initViewOrdersPage();
+    }
+
+    // Filter orders by status
+    function filterOrders(status) {
+        const cards = document.querySelectorAll('.order-card');
+        const buttons = document.querySelectorAll('.filter-btn');
+        
+        // Update active button
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Show/hide orders
+        cards.forEach(card => {
+            if (status === 'all' || card.dataset.status === status) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Update order status
+    function updateStatus(form, orderId) {
+        const formData = new FormData(form);
+        const newStatus = formData.get('status');
+        const statusSelect = form.querySelector('.status-select');
+        const updateBtn = form.querySelector('.status-update-btn');
+        const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+        const statusText = selectedOption.text;
+        
+        // Show loading state
+        const originalBtnContent = updateBtn.innerHTML;
+        updateBtn.classList.add('loading');
+        updateBtn.innerHTML = '<i class="fas fa-spinner"></i> <span>Updating...</span>';
+        updateBtn.disabled = true;
+        statusSelect.disabled = true;
+        
+        // Clean status text for confirmation
+        const cleanStatusText = statusText
+            .replace(/[🍳🚚✅📦❌]/g, '')
+            .replace('Start Preparing', 'Preparing')
+            .replace('Mark as Delivered', 'Delivered')
+            .replace('Mark as Completed', 'Completed')
+            .replace('Cancel Order', 'Cancelled')
+            .trim();
+
+        // Directly perform the status update via AJAX (no native browser confirm dialog)
+        performStatusUpdate(form, orderId, newStatus, originalBtnContent, updateBtn, statusSelect);
+    }
+    
+    function performStatusUpdate(form, orderId, newStatus, originalBtnContent, updateBtn, statusSelect) {
+        // Build form data explicitly so we can ensure the status value is included
+        const formData = new FormData(form);
+        // If the select is disabled, its value is not included by default, so force-set it
+        if (newStatus) {
+            formData.set('status', newStatus);
+        }
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showNotification('Order status updated successfully!', 'success');
+                
+                const orderCard = form.closest('.order-card');
+                const statusBadge = orderCard.querySelector('.badge-status');
+                if (statusBadge) {
+                    const statusSelect = form.querySelector('.status-select');
+                    const newStatusOption = Array.from(statusSelect.options).find(opt => opt.value === newStatus);
+                    if (newStatusOption) {
+                        statusBadge.textContent = newStatusOption.text.replace(/[🍳🚚✅📦❌]/g, '').trim();
+                        statusBadge.className = `badge-status status-${newStatus}`;
+                    }
+                }
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                throw new Error(data.message || 'Unknown error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Status update error:', error);
+            showNotification('Error updating order status: ' + error.message, 'error');
+            
+            updateBtn.classList.remove('loading');
+            updateBtn.innerHTML = originalBtnContent;
+            updateBtn.disabled = false;
+            statusSelect.disabled = false;
+        });
+    }
+    
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} status-notification`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 400px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideInRight 0.3s ease-out;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function showCancelModal(orderId, cancelUrl) {
+        const existingModal = document.querySelector('.modal-overlay');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        const modalHTML = `
+            <div class="modal-overlay" data-cancel-url="${cancelUrl}" onclick="closeCancelModal(event, false)">
+                <div class="modal" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3>⚠️ Cancel Order</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to cancel this order?</p>
+                        <div class="modal-order-number">#${String(orderId).padStart(3, '0')}</div>
+                        <p style="margin-top: 1rem; font-size: 0.875rem; color: #ef4444;">
+                            ⚠️ This action cannot be undone.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn modal-btn-cancel" onclick="closeCancelModal(event, false)">
+                            ❌ Keep Order
+                        </button>
+                        <button class="modal-btn modal-btn-confirm" onclick="closeCancelModal(event, true, ${orderId})">
+                            🗑️ Cancel Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    function closeCancelModal(event, confirmed, orderId = null) {
+        event.stopPropagation();
+        
+        if (confirmed) {
+            const overlay = document.querySelector('.modal-overlay');
+            const cancelUrl = overlay ? overlay.dataset.cancelUrl : null;
+            if (cancelUrl) {
+                cancelOrder(cancelUrl);
+            }
+        }
+        
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) {
+            modal.style.animation = 'fadeOut 0.2s ease';
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            }, 200);
+        }
+    }
+    
+    function cancelOrder(cancelUrl) {
+        const formData = new FormData();
+        const csrfToken = getCookie('csrftoken');
+        if (csrfToken) {
+            formData.append('csrfmiddlewaretoken', csrfToken);
+        }
+
+        fetch(cancelUrl, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                showNotification('Order cancelled successfully!', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showNotification('Error: ' + (data.message || 'Unable to cancel order'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Cancel error:', error);
+            showNotification('Error cancelling order: ' + error.message, 'error');
+        });
+    }
+</script>
+{% endblock %}

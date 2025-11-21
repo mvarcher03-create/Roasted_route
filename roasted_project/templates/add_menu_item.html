@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Menu Item - Roasted Route</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #D32F2F;
+            --primary-yellow: #FFC107;
+            --primary-white: #FFFFFF;
+            --dark-red: #B71C1C;
+            --light-gray: #f8f9fa;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-gray) 0%, #e9ecef 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: var(--primary-white);
+            border-radius: 0 !important;
+            padding: 20px 30px;
+            border-bottom: 4px solid var(--primary-yellow);
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            border: none;
+            padding: 14px 30px;
+            border-radius: 12px;
+            color: var(--primary-white);
+            font-weight: 700;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+        }
+
+        .btn-primary-custom:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--primary-white);
+            border: 2px solid var(--primary-red);
+            color: var(--primary-red);
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-red);
+            color: var(--primary-white);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 14px 16px;
+            transition: var(--transition);
+            font-size: 15px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 0.3rem rgba(255, 193, 7, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #495057;
+            font-size: 15px;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--primary-red);
+            font-weight: bold;
+        }
+
+        .image-section {
+            background: var(--primary-white);
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px dashed #e9ecef;
+            transition: var(--transition);
+        }
+
+        .image-section:hover {
+            border-color: var(--primary-yellow);
+        }
+
+        .image-preview-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            border: 3px solid var(--primary-yellow);
+            padding: 8px;
+            background: var(--primary-white);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 200px;
+            border: 3px dashed #dee2e6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 0.95rem;
+            margin: 0 auto;
+            background: var(--light-gray);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .image-placeholder:hover {
+            border-color: var(--primary-yellow);
+            color: var(--primary-red);
+            background: #fff;
+        }
+
+        .image-review-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid var(--primary-yellow);
+        }
+
+        .image-review-title {
+            color: var(--primary-red);
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .image-details {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .image-info-item {
+            display: flex;
+            justify-content: between;
+            margin-bottom: 8px;
+            padding: 5px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .image-info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 120px;
+        }
+
+        .image-info-value {
+            color: #6c757d;
+        }
+
+        .input-group-text {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+
+        .form-check-input:focus {
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+        }
+
+        .settings-toggle .form-check-input {
+            width: 2.5rem;
+            height: 1.3rem;
+            margin-left: 0;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .settings-toggle .form-check-label {
+            flex: 1;
+        }
+
+        .section-divider {
+            border-top: 3px solid var(--primary-yellow);
+            margin: 30px 0;
+            opacity: 0.6;
+        }
+
+        .section-title {
+            color: var(--primary-red);
+            font-weight: 800;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.3rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-yellow);
+        }
+
+        .section-title i {
+            background: var(--primary-yellow);
+            color: var(--primary-red);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        h1 {
+            color: var(--primary-red);
+            font-weight: 800;
+            font-size: 2.2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-buttons {
+            background: var(--primary-white);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 2px solid var(--primary-yellow);
+        }
+
+        /* Animation for form elements */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Upload button styling */
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .upload-btn {
+            border: 2px solid var(--primary-yellow);
+            color: var(--dark-red);
+            background-color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            width: 100%;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .upload-btn:hover {
+            background-color: var(--primary-yellow);
+            color: var(--dark-red);
+            transform: translateY(-2px);
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .d-flex.gap-2 {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 12px;
+            }
+            
+            .image-preview {
+                max-height: 250px;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card-body {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .image-preview {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="text-center mb-4">
+                    <h1><i class="fas fa-utensils me-2"></i>Add New Menu Item</h1>
+                    <p class="text-muted">Create a new delicious addition to your menu</p>
+                </div>
+
+                {% if messages %}
+                <div class="messages mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Menu Item</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" id="menuItemForm">
+                            {% csrf_token %}
+                            
+                            <!-- Section 1: Image Upload Section -->
+                            <div class="section-title">
+                                <i class="fas fa-camera"></i>
+                                <span>Image Upload & Review Section</span>
+                            </div>
+                            
+                            <div class="image-section mb-4">
+                                <!-- Upload Area -->
+                                <div class="mb-4">
+                                    <label class="form-label required" for="image">
+                                        <i class="fas fa-upload me-2"></i>Upload Item Photo
+                                    </label>
+                                    <div class="upload-btn-wrapper">
+                                        <button class="upload-btn" type="button">
+                                            <i class="fas fa-cloud-upload-alt me-2"></i>Choose Image File
+                                        </button>
+                                        <input type="file" id="image" name="image" accept="image/*" onchange="previewImage(event)" aria-label="Upload item image">
+                                    </div>
+                                    <div class="form-text mt-2 text-center">Recommended: 500x500 pixels, JPG, PNG or WEBP format (Max: 5MB)</div>
+                                </div>
+                                
+                                <!-- Image Preview -->
+                                <div class="image-preview-container" id="imagePreviewContainer">
+                                    <div id="imagePlaceholder" class="image-placeholder" onclick="document.getElementById('image').click()">
+                                        <div class="text-center">
+                                            <i class="fas fa-image fa-3x mb-3" style="color: var(--primary-red);"></i>
+                                            <div>Click to upload or drag & drop</div>
+                                            <small class="text-muted">No image selected</small>
+                                        </div>
+                                    </div>
+                                    <img id="imagePreview" class="image-preview" src="#" alt="Image preview" style="display: none;">
+                                </div>
+                                
+                                <!-- Image Review Section -->
+                                <div id="imageReviewSection" class="image-review-section" style="display: none;">
+                                    <h6 class="image-review-title">
+                                        <i class="fas fa-search me-2"></i>Image Review
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="image-details">
+                                                <div class="image-info-item">
+                                                    <span class="image-info-label">File Name:</span>
+                                                    <span class="image-info-value" id="fileName">-</span>
+                                                </div>
+                                                <div class="image-info-item">
+                                                    <span class="image-info-label">File Size:</span>
+                                                    <span class="image-info-value" id="fileSize">-</span>
+                                                </div>
+                                                <div class="image-info-item">
+                                                    <span class="image-info-label">File Type:</span>
+                                                    <span class="image-info-value" id="fileType">-</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                        
+                                    <div class="d-flex gap-2 mt-3 flex-wrap justify-content-center">
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeImage()">
+                                            <i class="fas fa-times me-1"></i>Remove Photo
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('image').click()">
+                                            <i class="fas fa-sync me-1"></i>Change Photo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="section-divider"></div>
+
+                            <!-- Section 2: Menu Item Details -->
+                            <div class="section-title">
+                                <i class="fas fa-edit"></i>
+                                <span>Menu Item Details</span>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3 form-group">
+                                    <label for="name" class="form-label required">
+                                        <i class="fas fa-hamburger me-2"></i>Item Name
+                                    </label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="e.g., Chicken Inasal" required>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3 form-group">
+                                    <label for="category" class="form-label required">
+                                        <i class="fas fa-folder me-2"></i>Category
+                                    </label>
+                                    <select class="form-select" id="category" name="category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="chicken">Chicken</option>
+                                        <option value="pork">Pork</option>
+                                        <option value="burger">Burger</option>
+                                        <option value="fries">Fries</option>
+                                        <option value="drinks">Drinks</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3 form-group">
+                                    <label for="price" class="form-label required">
+                                        <i class="fas fa-money-bill-wave me-2"></i>Price
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">₱</span>
+                                        <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" placeholder="0.00" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3 form-group">
+                                    <label for="stock" class="form-label">
+                                        <i class="fas fa-boxes me-2"></i>Stock Quantity
+                                    </label>
+                                    <input type="number" class="form-control" id="stock" name="stock" value="0" min="0" placeholder="0">
+                                </div>
+                            </div>
+
+                            <div class="mb-3 form-group">
+                                <label for="description" class="form-label">
+                                    <i class="fas fa-file-alt me-2"></i>Description
+                                </label>
+                                <textarea class="form-control" id="description" name="description" rows="3" placeholder="Describe the menu item..."></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3 form-group">
+                                    <div class="form-check form-switch settings-toggle p-3 bg-light rounded-3 d-flex align-items-center flex-wrap">
+                                        <input class="form-check-input" type="checkbox" id="available" name="available" checked>
+                                        <label class="form-check-label fw-bold ms-2 mb-0" for="available">
+                                            <i class="fas fa-toggle-on me-2"></i>Available for ordering
+                                        </label>
+                                        <p class="text-muted small mb-0 mt-2 w-100 ps-5">Show this item in the main menu</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3 form-group">
+                                    <div class="form-check form-switch settings-toggle p-3 bg-light rounded-3 d-flex align-items-center flex-wrap">
+                                        <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured">
+                                        <label class="form-check-label fw-bold ms-2 mb-0" for="is_featured">
+                                            <i class="fas fa-star me-2" style="color: var(--primary-yellow);"></i>Featured Item
+                                        </label>
+                                        <p class="text-muted small mb-0 mt-2 w-100 ps-5">Highlight this item as special</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Action Buttons at Bottom -->
+                <div class="action-buttons">
+                    <div class="d-flex gap-3 flex-wrap justify-content-center">
+                        <button type="submit" form="menuItemForm" class="btn btn-primary-custom">
+                            <i class="fas fa-save me-2"></i>Save Menu Item
+                        </button>
+                        <a href="{% url 'menu_management' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Menu
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Image preview and review functionality
+        function previewImage(event) {
+            const input = event.target;
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('imagePlaceholder');
+            const reviewSection = document.getElementById('imageReviewSection');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                
+                // Check file size (5MB limit)
+                if (file.size > 5 * 1024 * 1024) {
+                    showAlert('File size must be less than 5MB', 'warning');
+                    removeImage();
+                    return;
+                }
+                
+                // Check file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                if (!validTypes.includes(file.type)) {
+                    showAlert('Please select a valid image file (JPG, PNG, or WEBP)', 'warning');
+                    removeImage();
+                    return;
+                }
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    reviewSection.style.display = 'block';
+                    
+                    // Update review information
+                    updateImageReview(file, preview);
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function updateImageReview(file, previewElement) {
+            // File information
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('fileType').textContent = file.type.toUpperCase();
+            document.getElementById('uploadTime').textContent = new Date().toLocaleTimeString();
+            document.getElementById('previewStatus').innerHTML = '<span style="color: #28a745;">✓ Image loaded successfully</span>';
+            
+            // Get image dimensions and other details
+            const img = new Image();
+            img.onload = function() {
+                document.getElementById('imageDimensions').textContent = `${this.width} × ${this.height} pixels`;
+                document.getElementById('aspectRatio').textContent = calculateAspectRatio(this.width, this.height);
+                
+                // Check if image meets recommended size
+                if (this.width < 500 || this.height < 500) {
+                    document.getElementById('previewStatus').innerHTML = 
+                        '<span style="color: #ffc107;">⚠ Image is smaller than recommended 500x500 pixels</span>';
+                }
+            };
+            img.src = URL.createObjectURL(file);
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function calculateAspectRatio(width, height) {
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(width, height);
+            return `${width/divisor}:${height/divisor}`;
+        }
+        
+        function removeImage() {
+            const input = document.getElementById('image');
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('imagePlaceholder');
+            const reviewSection = document.getElementById('imageReviewSection');
+            
+            input.value = '';
+            preview.style.display = 'none';
+            placeholder.style.display = 'block';
+            reviewSection.style.display = 'none';
+            
+            // Reset review information
+            document.getElementById('fileName').textContent = '-';
+            document.getElementById('fileSize').textContent = '-';
+            document.getElementById('imageDimensions').textContent = '-';
+            document.getElementById('fileType').textContent = '-';
+            document.getElementById('previewStatus').textContent = 'No image loaded';
+            document.getElementById('aspectRatio').textContent = '-';
+            document.getElementById('colorSpace').textContent = '-';
+            document.getElementById('uploadTime').textContent = '-';
+        }
+        
+        // Form validation
+        document.getElementById('menuItemForm').addEventListener('submit', function(e) {
+            const name = document.getElementById('name').value.trim();
+            const category = document.getElementById('category').value;
+            const price = document.getElementById('price').value;
+            
+            if (!name) {
+                e.preventDefault();
+                showAlert('Please enter an item name', 'warning');
+                document.getElementById('name').focus();
+                return;
+            }
+            
+            if (!category) {
+                e.preventDefault();
+                showAlert('Please select a category', 'warning');
+                document.getElementById('category').focus();
+                return;
+            }
+            
+            if (!price || parseFloat(price) <= 0) {
+                e.preventDefault();
+                showAlert('Please enter a valid price', 'warning');
+                document.getElementById('price').focus();
+                return;
+            }
+        });
+        
+        // Auto-format price input
+        document.getElementById('price').addEventListener('blur', function() {
+            if (this.value) {
+                this.value = parseFloat(this.value).toFixed(2);
+            }
+        });
+
+        // Show alert function
+        function showAlert(message, type) {
+            // Create a custom alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.querySelector('.messages').appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentElement) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial state
+            removeImage();
+            
+            // Add animation delay to form groups
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                group.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Add drag and drop functionality
+            const placeholder = document.getElementById('imagePlaceholder');
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                placeholder.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                placeholder.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                placeholder.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                placeholder.style.borderColor = 'var(--primary-yellow)';
+                placeholder.style.background = '#fff';
+            }
+            
+            function unhighlight() {
+                placeholder.style.borderColor = '#dee2e6';
+                placeholder.style.background = 'var(--light-gray)';
+            }
+            
+            placeholder.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                document.getElementById('image').files = files;
+                previewImage({target: document.getElementById('image')});
+            }
+        });
+    </script>
+</body>
+</html>

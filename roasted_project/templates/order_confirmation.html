@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Roasted Route</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #DC2626;
+            --yellow: #F59E0B;
+            --white: #FFFFFF;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, var(--gray-50), var(--gray-100)); color: var(--gray-900); }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--red) 0%, var(--yellow) 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.15);
+        }
+        .navbar-brand { font-weight: 800; font-size: 1.75rem; color: var(--white); letter-spacing: -0.02em; }
+        .nav-icon { color: var(--white); font-size: 1.25rem; padding: 0.75rem; border-radius: 12px; transition: .3s; }
+        .nav-icon:hover { background: rgba(255,255,255,.15); transform: translateY(-2px); }
+
+        .confirm-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,.08);
+            border: 1px solid var(--gray-100);
+        }
+        .success-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: #DCFCE7; color: #065F46; border-radius: 999px; padding: 8px 14px; font-weight: 700;
+        }
+        .order-meta { color: var(--gray-600); font-size: .95rem; }
+        .divider { height: 1px; background: var(--gray-200); margin: 1rem 0 1.25rem; }
+
+        .item-row { display: grid; grid-template-columns: 1fr auto; gap: .75rem; padding: .75rem 0; border-bottom: 1px dashed var(--gray-200); }
+        .item-row:last-child { border-bottom: none; }
+        .item-title { font-weight: 600; }
+        .item-qty { color: var(--gray-600); font-size: .9rem; }
+        .item-price { font-weight: 700; color: var(--red); }
+        .addon-badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: .8rem; font-weight: 600; margin-right: 6px; margin-bottom: 6px; }
+        .addon-free { background: #d1fae5; color: #065f46; }
+        .addon-paid { background: #fff7ed; color: #9a3412; }
+
+        .summary-card { background: var(--white); border-radius: 16px; padding: 1.25rem; border: 1px solid var(--gray-100); }
+        .summary-row { display:flex; justify-content: space-between; margin-bottom: .5rem; color: var(--gray-700); }
+        .summary-row.total { font-weight: 800; font-size: 1.5rem; color: var(--red); margin-top: .75rem; }
+
+        .action-btn { border-radius: 12px; padding: .9rem 1.25rem; font-weight: 700; }
+
+        @media (max-width: 576px) { .confirm-card { padding: 1.25rem; } }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand" href="{% url 'customer_dashboard' %}"><i class="fas fa-check me-2"></i>ROASTED ROUTE</a>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'order_now' %}" class="nav-icon" title="Order More"><i class="fas fa-utensils"></i></a>
+                    <a href="{% url 'order_history' %}" class="nav-icon" title="Order History"><i class="fas fa-history"></i></a>
+                    <a href="{% url 'profile' %}" class="nav-icon" title="Profile"><i class="fas fa-user"></i></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="confirm-card">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="success-badge"><i class="fas fa-check-circle"></i>Order confirmed!</div>
+                        {% if order %}
+                        <div class="order-meta">
+                            <span class="me-3"><strong>Order #</strong>{{ order.id }}</span>
+                            <span><strong>Date:</strong> {{ order.created_at|date:"M d, Y h:i A" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Customer and delivery info -->
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-6">
+                            <div class="summary-card">
+                                <div class="fw-semibold mb-1 text-uppercase small text-muted">Customer</div>
+                                <div>{{ order.customer_name|default:request.user.get_username }}</div>
+                                <div class="text-muted small">{{ order.customer_contact|default:"" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="summary-card">
+                                <div class="fw-semibold mb-1 text-uppercase small text-muted">{{ order.delivery_type|default:'delivery'|title }}</div>
+                                {% if order.delivery_type == 'delivery' %}
+                                    <div>{{ order.address|default:"No address provided" }}</div>
+                                {% else %}
+                                    <div>Pickup: Roasted Route Main Branch</div>
+                                {% endif %}
+                                <div class="text-muted small">Status: {{ order.status|title }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items list -->
+                    <div class="mt-2">
+                        {% if order and order.items.all %}
+                            {% for item in order.items.all %}
+                                <div class="item-row">
+                                    <div>
+                                        <div class="item-title">{{ item.menu_item.name }}</div>
+                                        <div class="item-qty">{{ item.quantity }} × ₱{{ item.unit_price|floatformat:2 }}</div>
+                                        {% if item.customization.addOns or item.customization.addons %}
+                                        <div class="mt-2">
+                                            {% if item.customization.addOns %}
+                                                {% for addon in item.customization.addOns %}
+                                                    {% if addon.price and addon.price|floatformat:2 != '0.00' %}
+                                                        <span class="addon-badge addon-paid">{{ addon.label }} +₱{{ addon.price|floatformat:2 }}</span>
+                                                    {% else %}
+                                                        <span class="addon-badge addon-free">{{ addon.label }} • Free</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if item.customization.addons %}
+                                                {% for addon in item.customization.addons %}
+                                                    {% if addon.price and addon.price|floatformat:2 != '0.00' %}
+                                                        <span class="addon-badge addon-paid">{{ addon.label }} +₱{{ addon.price|floatformat:2 }}</span>
+                                                    {% else %}
+                                                        <span class="addon-badge addon-free">{{ addon.label }} • Free</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="item-price">₱{{ item.total_price|floatformat:2 }}</div>
+                                </div>
+                            {% empty %}
+                                <div class="text-muted">No items found in this order.</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-muted">Order not found.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="summary-card mb-3">
+                    <div class="fw-semibold mb-2 text-uppercase small text-muted">Payment Summary</div>
+                    <div class="summary-row"><span>Subtotal</span><span>₱{{ order.items_subtotal|floatformat:2 }}</span></div>
+                    <div class="summary-row"><span>Delivery Fee</span><span>₱{{ order.delivery_fee|default:'0.00'|floatformat:2 }}</span></div>
+                    <div class="summary-row total"><span>Total</span><span>₱{{ order.computed_total|floatformat:2 }}</span></div>
+                </div>
+
+                {% if order.payment_method == 'gcash' %}
+                <div class="summary-card mb-3" style="background-color: #FFFBEB;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="fw-semibold text-uppercase small text-muted">GCash Payment</div>
+                        <span class="badge bg-secondary">{{ order.get_payment_status_display }}</span>
+                    </div>
+
+                    {% if gcash_settings and gcash_settings.gcash_number %}
+                    <div class="small mb-2">
+                        GCash Number: <span class="fw-semibold">{{ gcash_settings.gcash_number }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if order.payment_proof %}
+                        {% if order.payment_status == 'for_verification' %}
+                            <div class="small text-muted mb-1">
+                                Your receipt is uploaded and is waiting for admin verification.
+                            </div>
+                        {% elif order.payment_status == 'paid' %}
+                            <div class="small text-success mb-1">
+                                Your GCash payment has been verified. Thank you!
+                            </div>
+                        {% elif order.payment_status == 'rejected' %}
+                            <div class="small text-danger mb-1">
+                                Your previous proof was rejected. You may upload a new screenshot below.
+                            </div>
+                        {% endif %}
+                        <div class="small mb-2">
+                            <a href="{{ order.payment_proof.url }}" target="_blank" class="link-secondary">View uploaded receipt</a>
+                        </div>
+                    {% else %}
+                        <div class="small text-muted mb-2">
+                            Step 1: Pay the total amount to our GCash number. Step 2: Upload a clear screenshot of your payment so we can verify it.
+                        </div>
+                    {% endif %}
+
+                    {% if order.payment_status == 'waiting_payment' or order.payment_status == 'rejected' or not order.payment_proof and order.payment_status != 'paid' %}
+                    <form method="post" action="{% url 'upload_payment_proof' order.id %}" enctype="multipart/form-data" class="mt-1">
+                        {% csrf_token %}
+                        <div class="mb-2 small">
+                            <label for="gcash_proof_confirm_{{ order.id }}" class="form-label mb-1">Upload GCash receipt (JPG/PNG only)</label>
+                            <input type="file" id="gcash_proof_confirm_{{ order.id }}" name="payment_proof" accept="image/*" required class="form-control form-control-sm">
+                        </div>
+                        <button type="submit" class="btn btn-danger btn-sm w-100">
+                            <i class="fas fa-upload me-1"></i>Upload for verification
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'order_now' %}" class="btn btn-outline-secondary action-btn"><i class="fas fa-plus me-2"></i>Order More</a>
+                    <a href="{% url 'order_history' %}" class="btn btn-dark action-btn"><i class="fas fa-list-ul me-2"></i>View Order History</a>
+                    <a href="{% url 'customer_dashboard' %}" class="btn btn-danger action-btn"><i class="fas fa-home me-2"></i>Back to Home</a>
+                </div>
+                <div class="text-center text-muted small mt-3">A copy of this order may have been sent to your email.</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

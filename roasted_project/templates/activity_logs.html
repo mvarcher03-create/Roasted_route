@@ -1,0 +1,424 @@
+{% extends 'admin_base.html' %}
+
+{% block title %}Activity Logs - Roasted Route Admin{% endblock %}
+
+{% block nav_activity_logs_active %}active{% endblock %}
+
+{% block page_header %}Activity Logs{% endblock %}
+
+{% block extra_head %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #D32F2F, #FFC107);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.15);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-icon {
+            color: #fff;
+            font-size: 1.1rem;
+            padding: 0.6rem;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+        }
+
+        .nav-icon.active {
+            background: rgba(0, 0, 0, 0.18);
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h2 {
+            font-weight: 700;
+            color: #D32F2F;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #6c757d;
+        }
+
+        .filter-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 1.5rem;
+        }
+
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .table-card-header {
+            padding: 0.9rem 1.5rem;
+            background: #D32F2F;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-card-header h5 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .badge-role {
+            border-radius: 999px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-owner { background: #fef3c7; color: #92400e; }
+        .badge-admin { background: #fee2e2; color: #b91c1c; }
+
+        .badge-category {
+            border-radius: 999px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-category-account { background: #e0f2fe; color: #0369a1; }
+        .badge-category-order { background: #dcfce7; color: #166534; }
+        .badge-category-menu { background: #fef3c7; color: #92400e; }
+
+        .log-row {
+            cursor: pointer;
+        }
+
+        .log-row:hover {
+            background-color: #fff7f7;
+        }
+
+        .table thead th {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6c757d;
+        }
+
+        .pagination .page-link {
+            color: #D32F2F;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #D32F2F;
+            border-color: #D32F2F;
+            color: #fff;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="activity-logs-wrapper py-4">
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="m-0"><i class="fas fa-clipboard-list me-2"></i>Activity Logs</h2>
+                <p>Track all admin and staff actions in the system.</p>
+            </div>
+            <div class="text-muted small">
+                <i class="fas fa-database me-1"></i>
+                {% if logs_page %}
+                    {{ logs_page.paginator.count }} total logs
+                {% else %}
+                    0 logs
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="filter-card">
+            <form method="get" class="row gy-2 gx-3 align-items-end">
+                <div class="col-md-6">
+                    <label for="searchInput" class="form-label small text-muted">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0" id="searchInput" name="q" placeholder="Search by user, order number, item name, or keyword..." value="{{ query }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="userFilter" class="form-label small text-muted">Filter by User</label>
+                    <select class="form-select" id="userFilter" name="user_filter">
+                        <option value="">All Users</option>
+                        {% for uf in user_filter_choices %}
+                            <option value="{{ uf }}" {% if user_filter == uf %}selected{% endif %}>{{ uf }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="dateFilter" class="form-label small text-muted">Filter by Date</label>
+                    <select class="form-select" id="dateFilter" name="date_filter">
+                        <option value="">All Dates</option>
+                        <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                        <option value="7" {% if date_filter == '7' %}selected{% endif %}>Last 7 days</option>
+                        <option value="30" {% if date_filter == '30' %}selected{% endif %}>Last 30 days</option>
+                    </select>
+                </div>
+                <div class="col-md-12 mt-2 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-danger me-2">
+                        <i class="fas fa-filter me-1"></i>Apply Filters
+                    </button>
+                    <a href="{% url 'activity_logs' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-card-header">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>Logs</h5>
+                <span class="small">Click a row to view full details.</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Time</th>
+                            <th style="width: 20%;">User</th>
+                            <th style="width: 10%;">Type</th>
+                            <th>Action</th>
+                            <th style="width: 16%;">Related</th>
+                            <th style="width: 8%;" class="text-end">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if logs_page and logs_page.object_list %}
+                            {% for log in logs_page %}
+                            <tr class="log-row">
+                                <td>{{ log.timestamp|date:"M d, Y h:i A" }}</td>
+                                <td>
+                                    {% if log.user %}
+                                        <div class="fw-semibold">{{ log.user.username }}</div>
+                                    {% else %}
+                                        <div class="fw-semibold text-muted">System</div>
+                                    {% endif %}
+                                    {% if log.user_role %}
+                                        <span class="badge-role
+                                            {% if log.user_role == 'Owner' %}badge-owner
+                                            {% elif log.user_role == 'Admin' %}badge-admin
+                                            {% endif %}">
+                                            {{ log.user_role }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-category text-uppercase small
+                                        {% if log.category == 'account' %}badge-category-account
+                                        {% elif log.category == 'order' %}badge-category-order
+                                        {% elif log.category == 'menu' %}badge-category-menu
+                                        {% endif %}">
+                                        {{ log.category }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold">{{ log.action }}</div>
+                                    {% if log.description %}
+                                        <div class="small text-muted text-truncate" style="max-width: 320px;">
+                                            {{ log.description }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if log.order_number %}
+                                        <div class="small"><i class="fas fa-receipt me-1"></i>Order {{ log.order_number }}</div>
+                                    {% endif %}
+                                    {% if log.item_name %}
+                                        <div class="small"><i class="fas fa-utensils me-1"></i>{{ log.item_name }}</div>
+                                    {% endif %}
+                                    {% if not log.order_number and not log.item_name %}
+                                        <span class="small text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary view-log-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#logDetailsModal"
+                                            data-time="{{ log.timestamp|date:'M d, Y h:i A' }}"
+                                            data-user="{% if log.user %}{{ log.user.username }}{% else %}System{% endif %}"
+                                            data-role="{{ log.user_role }}"
+                                            data-category="{{ log.category }}"
+                                            data-order="{{ log.order_number }}"
+                                            data-item="{{ log.item_name }}"
+                                            data-action="{{ log.action|escape }}"
+                                            data-description="{{ log.description|default:'No additional details.'|escape }}">
+                                        View
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                                    <div>No activity logs found.</div>
+                                    <div class="small">Try adjusting your search or filters.</div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if logs_page and logs_page.paginator.num_pages > 1 %}
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-light">
+                <div class="small text-muted">
+                    Page {{ logs_page.number }} of {{ logs_page.paginator.num_pages }}
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if logs_page.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ logs_page.previous_page_number }}&q={{ query }}&user_filter={{ user_filter }}&date_filter={{ date_filter }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                        {% endif %}
+
+                        {% for num in logs_page.paginator.page_range %}
+                            {% if num == logs_page.number %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                            {% elif num >= logs_page.number|add:'-2' and num <= logs_page.number|add:'2' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}&q={{ query }}&user_filter={{ user_filter }}&date_filter={{ date_filter }}">{{ num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if logs_page.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ logs_page.next_page_number }}&q={{ query }}&user_filter={{ user_filter }}&date_filter={{ date_filter }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal fade" id="logDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Log Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">Time</dt>
+                        <dd class="col-sm-9" id="logDetailsTime"></dd>
+
+                        <dt class="col-sm-3">User</dt>
+                        <dd class="col-sm-9" id="logDetailsUser"></dd>
+
+                        <dt class="col-sm-3">Type</dt>
+                        <dd class="col-sm-9" id="logDetailsCategory"></dd>
+
+                        <dt class="col-sm-3">Action</dt>
+                        <dd class="col-sm-9" id="logDetailsAction"></dd>
+
+                        <dt class="col-sm-3">Related</dt>
+                        <dd class="col-sm-9" id="logDetailsRelated"></dd>
+
+                        <dt class="col-sm-3">Description</dt>
+                        <dd class="col-sm-9" id="logDetailsDescription"></dd>
+                    </dl>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailModal = document.getElementById('logDetailsModal');
+            const timeEl = document.getElementById('logDetailsTime');
+            const userEl = document.getElementById('logDetailsUser');
+            const categoryEl = document.getElementById('logDetailsCategory');
+            const actionEl = document.getElementById('logDetailsAction');
+            const relatedEl = document.getElementById('logDetailsRelated');
+            const descriptionEl = document.getElementById('logDetailsDescription');
+
+            document.querySelectorAll('.view-log-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const time = this.getAttribute('data-time') || '-';
+                    const user = this.getAttribute('data-user') || 'System';
+                    const role = this.getAttribute('data-role') || '';
+                    const category = this.getAttribute('data-category') || '-';
+                    const orderNo = this.getAttribute('data-order') || '';
+                    const itemName = this.getAttribute('data-item') || '';
+                    const action = this.getAttribute('data-action') || '-';
+                    const description = this.getAttribute('data-description') || 'No additional details.';
+
+                    timeEl.textContent = time;
+                    userEl.textContent = role ? user + ' (' + role + ')' : user;
+                    categoryEl.textContent = category;
+                    actionEl.textContent = action;
+
+                    let relatedParts = [];
+                    if (orderNo) {
+                        relatedParts.push('Order ' + orderNo);
+                    }
+                    if (itemName) {
+                        relatedParts.push('Item ' + itemName);
+                    }
+                    relatedEl.textContent = relatedParts.length ? relatedParts.join(' | ') : '—';
+
+                    descriptionEl.textContent = description;
+                });
+            });
+
+            // Make entire log row clickable (opens the same details modal)
+            document.querySelectorAll('.log-row').forEach(function(row) {
+                row.addEventListener('click', function(e) {
+                    // If the click was directly on the button, let the button handler run
+                    if (e.target.closest('.view-log-btn')) {
+                        return;
+                    }
+                    const btn = this.querySelector('.view-log-btn');
+                    if (btn) {
+                        btn.click();
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

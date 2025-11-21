@@ -1,0 +1,1321 @@
+{% extends 'customer_base.html' %}
+
+{% block title %}Order Now - Roasted Route{% endblock %}
+{% block nav_order_now_active %}active{% endblock %}
+{% block page_header %}Order Now{% endblock %}
+
+{% block extra_head %}
+    <style>
+        :root {
+            --primary-color: #D32F2F;
+            --secondary-color: #FFC107;
+            --accent-color: #FF5722;
+            --light-color: #FFFFFF;
+            --dark-color: #B71C1C;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        /* Navbar (match cart.html) - renamed to avoid affecting shared sidebar icons */
+        .order-now-navbar {
+            background: linear-gradient(135deg, #DC2626 0%, #F59E0B 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.15);
+            margin-bottom: 16px;
+        }
+        .order-now-navbar-brand {
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+        }
+        .order-now-nav-icon {
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .order-now-nav-icon:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); }
+
+        .order-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        /* Search Bar */
+        .search-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(211, 47, 47, 0.4);
+            background: linear-gradient(135deg, var(--dark-color), var(--primary-color));
+        }
+
+        .search-results-info {
+            margin-top: 15px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .filter-title {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: white;
+            border: 2px solid var(--secondary-color);
+            color: var(--dark-color);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: var(--secondary-color);
+            color: var(--light-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+        }
+
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 260px));
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .menu-item-card {
+            background: white;
+            border-radius: 15px;
+            padding: 0;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            max-width: 260px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .menu-item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border-color: var(--secondary-color);
+        }
+
+        .menu-item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: none;
+        }
+
+        /* Card media (top image) */
+        .menu-item-media {
+            position: relative;
+            width: 100%;
+            padding-top: 16px;   /* move image further down */
+            margin-bottom: 4px;  /* keep small gap to text */
+            display: flex;
+            justify-content: center;
+        }
+
+        .menu-cover {
+            width: 180px;   /* bigger photo */
+            height: 180px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 12px;
+            display: block;
+            border: none;
+        }
+
+        .menu-item-body {
+            padding: 8px 16px 8px 16px;
+            flex: 1 1 auto;
+        }
+
+        .item-badge {
+            display: none; /* hide fire + category pill on cards */
+        }
+
+        .menu-item-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 0 16px 14px 16px;
+            margin-top: auto;
+        }
+
+        .menu-item-footer .menu-item-price {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .menu-item-footer .add-to-cart-btn {
+            width: auto;
+            border-radius: 999px;
+            padding: 10px 16px;
+        }
+
+        .menu-item-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .menu-item-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 2px solid var(--secondary-color);
+        }
+
+        .menu-item-info {
+            flex: 1;
+        }
+
+        .menu-item-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+            min-height: 2.4em; /* reserve space so names align across cards */
+        }
+
+        .menu-item-price {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--dark-color);
+        }
+
+        .menu-item-description {
+            color: #6c757d;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;  /* show only one line */
+            line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 1.4em; /* keep descriptions aligned, max ~1 line */
+        }
+
+        .add-to-cart-btn {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            border: none;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            transition: var(--transition);
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-to-cart-btn i {
+            font-size: 1rem;
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(211, 47, 47, 0.4);
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+        }
+
+        .add-to-cart-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .add-to-cart-btn:focus-visible {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+
+        /* Add to Cart modal styling */
+        #addToCartModal .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
+        }
+
+        #addToCartModal .modal-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 1.25rem 1.5rem 1rem;
+        }
+
+        #addToCartModal .modal-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #addToCartModal .modal-body {
+            padding: 0.75rem 1.5rem 1.5rem;
+        }
+
+        #addToCartModal .modal-image-wrapper {
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            background: #f8f9fa;
+        }
+
+        #addToCartModal .badge {
+            border-radius: 999px;
+            font-weight: 600;
+            padding: 0.35rem 0.75rem;
+        }
+
+        #addToCartModal #modalItemName {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        #addToCartModal #modalItemDescription {
+            font-size: 0.9rem;
+        }
+
+        #addToCartModal #modalItemPrice {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        #addToCartModal .quantity-row .input-group {
+            max-width: 150px;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+        }
+
+        #addToCartModal .quantity-row .form-control {
+            text-align: center;
+            font-weight: 600;
+            height: 36px;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+        }
+
+        #addToCartModal .quantity-row .form-control:focus {
+            box-shadow: none;
+        }
+
+        #addToCartModal .quantity-row .btn {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border: none;
+            background: transparent;
+            color: var(--dark-color);
+        }
+
+        #addToCartModal .quantity-row .btn:hover {
+            background: #f3f4f6;
+        }
+
+        #addToCartModal #modalTotal {
+            font-size: 1.2rem;
+        }
+
+        .add-to-cart-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            border: none;
+            border-radius: 999px;
+            padding: 0.6rem 1.6rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(211, 47, 47, 0.45);
+            transition: var(--transition);
+        }
+
+        .add-to-cart-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 32px rgba(211, 47, 47, 0.55);
+            color: #fff;
+        }
+
+        .add-to-cart-primary:focus-visible {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+
+        #addToCartModal .modal-options-group {
+            background: #fff7f5;
+            border-radius: 12px;
+            border: 1px solid #ffe0d4;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        #addToCartModal .quantity-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.85rem;
+        }
+
+        #addToCartModal .options-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+        }
+
+        #addToCartModal .addon-list .form-check {
+            margin-bottom: 0.3rem;
+        }
+
+        #addToCartModal #specialInstructions {
+            border-radius: 12px;
+            resize: vertical;
+        }
+
+        #addToCartModal #specialInstructions::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Floating Cart Button */
+        .floating-cart {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .cart-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 24px;
+            font-weight: 600;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .cart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-badge {
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .order-container {
+                padding: 15px;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .category-buttons {
+                justify-content: center;
+            }
+            
+            .menu-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)); /* mobile: 2 columns */
+            }
+            
+            .menu-item-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .menu-item-media {
+                height: 180px;
+            }
+
+            /* Make price + Add to Cart stack nicely on small screens */
+            .menu-item-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .menu-item-footer .menu-item-price {
+                font-size: 1rem;
+            }
+
+            .menu-item-footer .add-to-cart-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .floating-cart {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .cart-btn {
+                padding: 14px 20px;
+                font-size: 0.9rem;
+            }
+
+            /* Slightly smaller primary Add to Cart in modal on mobile */
+            .add-to-cart-primary {
+                padding: 0.5rem 1.4rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .category-btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .menu-item-name {
+                font-size: 1.05rem;
+            }
+            
+            .menu-item-price {
+                font-size: 1.2rem;
+            }
+
+            .menu-item-footer .add-to-cart-btn {
+                padding: 7px 12px;
+                font-size: 0.78rem;
+            }
+
+            .add-to-cart-primary {
+                padding: 0.45rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .floating-cart {
+                bottom: 15px;
+                right: 15px;
+            }
+
+            .menu-item-media {
+                height: 160px;
+            }
+        }
+
+        /* Tablet: 3 columns */
+        @media (min-width: 769px) and (max-width: 991.98px) {
+            .menu-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        /* Larger screens: show more of the photo and 4 columns */
+        @media (min-width: 992px) {
+            .menu-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+            .menu-item-media { height: 240px; }
+        }
+
+        @media (min-width: 1200px) {
+            .menu-item-media { height: 260px; }
+        }
+
+        /* Animation for cart updates */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        /* Stock status */
+        .stock-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .in-stock {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .out-of-stock {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            grid-column: 1 / -1;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .no-results h4 {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .no-results p {
+            color: #6c757d;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="order-container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-utensils me-2"></i>ORDER NOW</h1>
+            <p>Fresh & Delicious Food from Our Menu</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search for menu items...">
+                <button class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <div class="search-results-info" id="searchResultsInfo">
+                Showing <span id="resultsCount">0</span> results for "<span id="searchTerm"></span>"
+            </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="category-filter">
+            <div class="filter-title">
+                <i class="fas fa-filter"></i>
+                <span>Category Filter:</span>
+            </div>
+            <div class="category-buttons">
+                <button class="category-btn active" data-category="all">All</button>
+                {% for category_value, category_name in category_choices %}
+                <button class="category-btn" data-category="{{ category_value }}">{{ category_name }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Menu Grid -->
+        <div class="menu-grid" id="menuGrid">
+            {% for item in menu_items %}
+            <div class="menu-item-card" data-category="{{ item.category }}" data-searchable="{{ item.name|lower }} {{ item.description|default:''|lower }} {{ item.get_category_display|lower }}">
+                <div class="menu-item-media">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="menu-cover">
+                    {% else %}
+                        <div class="menu-cover" style="background: linear-gradient(135deg, #c47135, #ffa751);"></div>
+                    {% endif %}
+                    <span class="item-badge"><i class="fas fa-fire"></i>{{ item.get_category_display }}</span>
+                </div>
+
+                <div class="menu-item-body">
+                    <div class="menu-item-name">
+                        {{ item.name }}
+                        {% if not item.available or item.stock == 0 %}
+                            <span class="stock-status out-of-stock">
+                                OUT OF STOCK
+                            </span>
+                        {% else %}
+                            <span class="stock-status in-stock">
+                                Stock: {{ item.stock }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="menu-item-description">
+                        {{ item.description|default:"No description available" }}
+                    </div>
+                </div>
+
+                <div class="menu-item-footer">
+                    <div class="menu-item-price">₱{{ item.price|floatformat:2 }}</div>
+                    <button class="add-to-cart-btn" 
+                            data-item-id="{{ item.id }}"
+                            data-item-name="{{ item.name }}" 
+                            data-item-price="{{ item.price|floatformat:2 }}"
+                            {% if not item.available or item.stock == 0 %}disabled{% endif %}>
+                        {% if not item.available or item.stock == 0 %}
+                            OUT OF STOCK
+                        {% else %}
+                            Add to Cart
+                        {% endif %}
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No menu items available</h4>
+                <p class="text-muted">Please check back later.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <div class="floating-cart">
+        <a href="{% url 'cart' %}" class="cart-btn" id="floatingCartBtn">
+            View Cart
+            <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
+        </a>
+    </div>
+
+    <!-- Add to Cart Modal -->
+    <div class="modal fade" id="addToCartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-shopping-cart me-2"></i>Add to Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body pt-0">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="ratio ratio-4x3 rounded modal-image-wrapper">
+                                <img id="modalItemImage" src="" alt="" style="object-fit:cover;">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="mb-1"><span class="badge bg-danger" id="modalItemCategory">Category</span></div>
+                            <h5 class="mb-1" id="modalItemName">Food Name</h5>
+                            <div class="text-muted small mb-2" id="modalItemDescription">Description</div>
+                            <div class="fw-bold text-danger mb-3" id="modalItemPrice">₱0.00</div>
+
+                            <div class="modal-options-group">
+                                <div class="quantity-row">
+                                    <label class="options-label mb-0" for="qtyInput">Quantity</label>
+                                    <div class="input-group">
+                                        <button class="btn btn-outline-secondary" type="button" id="qtyMinus">-</button>
+                                        <input type="text" class="form-control" id="qtyInput" value="1">
+                                        <button class="btn btn-outline-secondary" type="button" id="qtyPlus">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 addon-list">
+                                    <div class="options-label mb-1">Add-ons / Options</div>
+                                    <div id="addonOptionsContainer">
+                                        <p class="text-muted small mb-0">Select an item to see available add-ons.</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label class="options-label mb-1" for="specialInstructions">Special Instructions</label>
+                                    <textarea id="specialInstructions" class="form-control" rows="2" placeholder="e.g., No onions please..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="fw-bold">Total: <span id="modalTotal" class="text-danger">₱0.00</span></div>
+                                <div class="d-flex" style="gap:10px;">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn add-to-cart-primary" id="modalAddToCartBtn">Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSRF Token for AJAX requests -->
+    {% csrf_token %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cartBadge = document.getElementById('cartBadge');
+            const floatingCartBtn = document.getElementById('floatingCartBtn');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const searchResultsInfo = document.getElementById('searchResultsInfo');
+            const resultsCount = document.getElementById('resultsCount');
+            const searchTerm = document.getElementById('searchTerm');
+            const menuGrid = document.getElementById('menuGrid');
+
+            // Load initial cart count
+            updateCartCount();
+
+            // Search functionality
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            function performSearch() {
+                const query = searchInput.value.trim().toLowerCase();
+                
+                if (query === '') {
+                    // If search is empty, show all items
+                    resetSearch();
+                    return;
+                }
+
+                const menuItems = document.querySelectorAll('.menu-item-card');
+                let visibleCount = 0;
+
+                menuItems.forEach(item => {
+                    const searchableText = item.getAttribute('data-searchable');
+                    
+                    if (searchableText.includes(query)) {
+                        item.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Show search results info
+                searchTerm.textContent = query;
+                resultsCount.textContent = visibleCount;
+                searchResultsInfo.style.display = 'block';
+
+                // Show no results message if needed
+                if (visibleCount === 0) {
+                    showNoResultsMessage(query);
+                } else {
+                    removeNoResultsMessage();
+                }
+
+                // Reset category filter active state
+                resetCategoryFilter();
+            }
+
+            function resetSearch() {
+                const menuItems = document.querySelectorAll('.menu-item-card');
+                menuItems.forEach(item => {
+                    item.style.display = 'block';
+                });
+                
+                searchResultsInfo.style.display = 'none';
+                removeNoResultsMessage();
+                resetCategoryFilter();
+            }
+
+            function showNoResultsMessage(query) {
+                // Remove existing no results message if any
+                removeNoResultsMessage();
+                
+                // Create and add no results message
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.className = 'no-results';
+                noResultsDiv.innerHTML = `
+                    <i class="fas fa-search"></i>
+                    <h4>No results found</h4>
+                    <p>We couldn't find any menu items matching "${query}"</p>
+                    <p>Try searching with different keywords or browse by category.</p>
+                `;
+                
+                menuGrid.appendChild(noResultsDiv);
+            }
+
+            function showCategoryEmptyMessage(categoryLabel) {
+                removeNoResultsMessage();
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.className = 'no-results';
+                noResultsDiv.innerHTML = `
+                    <i class="fas fa-utensils"></i>
+                    <h4>No menu items available</h4>
+                    <p>There are currently no menu items in the "${categoryLabel}" category.</p>
+                `;
+                menuGrid.appendChild(noResultsDiv);
+            }
+
+            function removeNoResultsMessage() {
+                const existingNoResults = document.querySelector('.no-results');
+                if (existingNoResults) {
+                    existingNoResults.remove();
+                }
+            }
+
+            function resetCategoryFilter() {
+                const categoryButtons = document.querySelectorAll('.category-btn');
+                categoryButtons.forEach(btn => {
+                    if (btn.getAttribute('data-category') === 'all') {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+
+            // Category Filter
+            const categoryButtons = document.querySelectorAll('.category-btn');
+            const menuItems = document.querySelectorAll('.menu-item-card');
+
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Reset search when category is selected
+                    searchInput.value = '';
+                    resetSearch();
+                    
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const selectedCategory = this.getAttribute('data-category');
+                    let visibleCount = 0;
+
+                    menuItems.forEach(item => {
+                        if (selectedCategory === 'all' || item.getAttribute('data-category') === selectedCategory) {
+                            item.style.display = 'block';
+                            visibleCount++;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+
+                    if (selectedCategory === 'all') {
+                        removeNoResultsMessage();
+                        return;
+                    }
+
+                    if (visibleCount === 0) {
+                        const label = this.textContent.trim() || 'selected';
+                        showCategoryEmptyMessage(label);
+                    } else {
+                        removeNoResultsMessage();
+                    }
+                });
+            });
+
+            // Add to Cart functionality
+            // Modal state
+            let modalItem = { id: null, name: '', price: 0, image: '', category: '', categoryCode: '', description: '' };
+            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn:not([disabled])');
+
+            // Modal elements
+            const addToCartModalEl = document.getElementById('addToCartModal');
+            const addToCartModal = new bootstrap.Modal(addToCartModalEl);
+            const modalItemNameEl = document.getElementById('modalItemName');
+            const modalItemPriceEl = document.getElementById('modalItemPrice');
+            const modalItemImageEl = document.getElementById('modalItemImage');
+            const modalItemCategoryEl = document.getElementById('modalItemCategory');
+            const modalItemDescriptionEl = document.getElementById('modalItemDescription');
+            const qtyInput = document.getElementById('qtyInput');
+            const qtyMinus = document.getElementById('qtyMinus');
+            const qtyPlus = document.getElementById('qtyPlus');
+            const addonOptionsContainer = document.getElementById('addonOptionsContainer');
+            const addonCheckboxes = () => Array.from(addonOptionsContainer.querySelectorAll('.addon-checkbox'));
+            const specialInstructions = document.getElementById('specialInstructions');
+            const modalTotalEl = document.getElementById('modalTotal');
+            const modalAddToCartBtn = document.getElementById('modalAddToCartBtn');
+
+            const ADDON_CONFIG = {
+                chicken: [
+                    { id: 'garlicRice', label: 'Garlic Rice', price: 15 },
+                    { id: 'plainRice', label: 'Plain Rice', price: 10 },
+                    { id: 'chickenGravy', label: 'Chicken Gravy', price: 0 },
+                    { id: 'atchara', label: 'Atchara', price: 15 },
+                    { id: 'spicedVinegar', label: 'Spiced Vinegar', price: 0 },
+                    { id: 'chickenOil', label: 'Extra Chicken Oil', price: 0 },
+                ],
+                pork: [
+                    { id: 'garlicRice', label: 'Garlic Rice', price: 15 },
+                    { id: 'plainRice', label: 'Plain Rice', price: 10 },
+                    { id: 'chickenGravy', label: 'Chicken Gravy', price: 0 },
+                    { id: 'atchara', label: 'Atchara', price: 15 },
+                    { id: 'spicedVinegar', label: 'Spiced Vinegar', price: 0 },
+                    { id: 'chickenOil', label: 'Extra Chicken Oil', price: 0 },
+                ],
+                burger: [
+                    { type: 'group', label: 'Patty Add-ons' },
+                    { id: 'extraBeefPatty', label: 'Extra Beef Patty', price: 40 },
+                    { id: 'extraChickenFillet', label: 'Extra Chicken Fillet', price: 45 },
+                    { id: 'extraBaconStrips', label: 'Extra Bacon Strips', price: 25 },
+                    { id: 'extraCheese', label: 'Extra Cheese', price: 15 },
+                    { type: 'group', label: 'Toppings' },
+                    { id: 'friedEgg', label: 'Fried Egg', price: 15 },
+                    { id: 'lettuceTomato', label: 'Lettuce & Tomato', price: 15 },
+                    { id: 'caramelizedOnions', label: 'Caramelized Onions', price: 15 },
+                ],
+                fries: [
+                    { type: 'group', label: 'Flavor' },
+                    { id: 'flavorSourCream', label: 'Sour Cream', price: 0 },
+                    { id: 'flavorCheese', label: 'Cheese', price: 0 },
+                    { id: 'flavorChiliBbq', label: 'Chili BBQ', price: 0 },
+                    { id: 'flavorBbq', label: 'BBQ', price: 0 },
+                    { type: 'group', label: 'Sauces' },
+                    { id: 'cheeseSauce', label: 'Cheese Sauce', price: 15 },
+                    { id: 'garlicMayo', label: 'Garlic Mayo', price: 10 },
+                    { id: 'bbqSauce', label: 'BBQ Sauce', price: 10 },
+                    { id: 'spicyMayo', label: 'Spicy Mayo', price: 10 },
+                    { type: 'group', label: 'Upgrades' },
+                    { id: 'upgradeLarge', label: 'Upgrade to Large', price: 20 },
+                    { id: 'upgradeLoaded', label: 'Upgrade to Loaded', price: 40 },
+                ],
+            };
+
+            function formatPrice(n){ return '₱' + Number(n).toFixed(2); }
+            function calcAddons(){
+                return addonCheckboxes().filter(c=>c.checked).reduce((s,c)=>s+parseFloat(c.value||0),0);
+            }
+
+            function renderAddonsForCategory(categoryCode) {
+                addonOptionsContainer.innerHTML = '';
+                const config = ADDON_CONFIG[categoryCode] || [];
+                if (!config.length) {
+                    addonOptionsContainer.innerHTML = '<p class="text-muted small mb-0">No add-ons available for this item.</p>';
+                    return;
+                }
+
+                config.forEach(entry => {
+                    if (entry.type === 'group') {
+                        const groupLabel = document.createElement('div');
+                        groupLabel.className = 'fw-semibold small mt-2 mb-1';
+                        groupLabel.textContent = entry.label;
+                        addonOptionsContainer.appendChild(groupLabel);
+                    } else {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'form-check';
+
+                        const input = document.createElement('input');
+                        input.className = 'form-check-input addon-checkbox';
+                        input.type = 'checkbox';
+                        input.value = entry.price;
+                        input.id = `addon-${entry.id}`;
+                        input.dataset.label = entry.label;
+
+                        const label = document.createElement('label');
+                        label.className = 'form-check-label';
+                        label.setAttribute('for', input.id);
+                        const pricePart = entry.price && Number(entry.price) !== 0
+                            ? ` (+₱${Number(entry.price).toFixed(2)})`
+                            : ' (Free)';
+                        label.textContent = `${entry.label}${pricePart}`;
+
+                        wrapper.appendChild(input);
+                        wrapper.appendChild(label);
+                        addonOptionsContainer.appendChild(wrapper);
+                    }
+                });
+            }
+            // Ensure quantity is always a positive integer (fallback to 1 on invalid input)
+            function sanitizeQuantity(value) {
+                const parsed = parseInt((value || '1'), 10);
+                if (isNaN(parsed) || parsed <= 0) {
+                    return 1;
+                }
+                return parsed;
+            }
+            function recalcTotal(){
+                const qty = sanitizeQuantity(qtyInput.value);
+                const total = (modalItem.price + calcAddons()) * qty;
+                modalTotalEl.textContent = formatPrice(total);
+            }
+
+            addonOptionsContainer.addEventListener('change', function(event) {
+                if (event.target.classList.contains('addon-checkbox')) {
+                    recalcTotal();
+                }
+            });
+
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    modalItem.id = this.getAttribute('data-item-id');
+                    modalItem.name = this.getAttribute('data-item-name');
+                    modalItem.price = parseFloat(this.getAttribute('data-item-price'));
+
+                    // Try to infer image and category/description from card
+                    const card = this.closest('.menu-item-card');
+                    const cover = card.querySelector('.menu-cover');
+                    const badge = card.querySelector('.item-badge');
+                    const desc = card.querySelector('.menu-item-description');
+                    const categoryCode = card.getAttribute('data-category');
+                    modalItem.image = cover && cover.getAttribute('src') ? cover.getAttribute('src') : '';
+                    modalItem.category = badge ? badge.textContent.trim() : '';
+                    modalItem.categoryCode = categoryCode || '';
+                    modalItem.description = desc ? desc.textContent.trim() : '';
+
+                    // Populate modal
+                    modalItemNameEl.textContent = modalItem.name;
+                    modalItemPriceEl.textContent = formatPrice(modalItem.price);
+                    modalItemImageEl.src = modalItem.image;
+                    modalItemCategoryEl.textContent = modalItem.category || 'Menu Item';
+                    modalItemDescriptionEl.textContent = modalItem.description;
+
+                    renderAddonsForCategory(categoryCode);
+
+                    // Reset inputs
+                    qtyInput.value = '1';
+                    addonCheckboxes().forEach(c=>c.checked=false);
+                    specialInstructions.value='';
+                    recalcTotal();
+
+                    addToCartModal.show();
+                });
+            });
+
+            qtyMinus.addEventListener('click', ()=>{ qtyInput.value = Math.max(1, (parseInt(qtyInput.value||'1',10)-1)); recalcTotal(); });
+            qtyPlus.addEventListener('click', ()=>{ qtyInput.value = (parseInt(qtyInput.value||'1',10)+1); recalcTotal(); });
+            qtyInput.addEventListener('input', recalcTotal);
+
+            modalAddToCartBtn.addEventListener('click', function(){
+                const qty = sanitizeQuantity(qtyInput.value);
+                const selectedAddons = addonCheckboxes().filter(c=>c.checked).map(c=>({ label: c.dataset.label, price: parseFloat(c.value) }));
+                const customization = {
+                    addons: selectedAddons,
+                    notes: specialInstructions.value || ''
+                };
+                addToCart(modalItem.id, modalItem.name, modalItem.price, qty, customization);
+            });
+
+            function addToCart(itemId, itemName, itemPrice, quantity=1, customization={}) {
+                // Show loading state
+                const button = document.querySelector(`[data-item-id="${itemId}"]`);
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                button.disabled = true;
+
+                // Send AJAX request to add to cart
+                fetch('{% url "add_to_cart" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `menu_item_id=${itemId}&quantity=${encodeURIComponent(quantity)}&customization=${encodeURIComponent(JSON.stringify(customization))}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(`${itemName} added to cart!`, 'success');
+                        updateCartCount();
+                        try { addToCartModal.hide(); } catch(e) {}
+                        // Add pulse animation to cart button
+                        floatingCartBtn.classList.add('pulse');
+                        setTimeout(() => {
+                            floatingCartBtn.classList.remove('pulse');
+                        }, 500);
+                    } else {
+                        showToast(data.message || 'Error adding item to cart', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error adding item to cart', 'error');
+                })
+                .finally(() => {
+                    // Restore button state
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                });
+            }
+
+            function updateCartCount() {
+                // Fetch current cart count from server
+                fetch('{% url "cart_count" %}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.count > 0) {
+                        cartBadge.textContent = data.count;
+                        cartBadge.style.display = 'flex';
+                    } else {
+                        cartBadge.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching cart count:', error);
+                });
+            }
+
+            // Toast notification function
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#28a745' : type === 'warning' ? '#ffc107' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    z-index: 1000;
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    max-width: 300px;
+                    font-weight: 600;
+                `;
+                toast.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'error' ? 'times-circle' : 'info-circle'}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(0)';
+                }, 100);
+                
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        if (toast.parentNode) {
+                            document.body.removeChild(toast);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+
+            // Initialize cart count
+            updateCartCount();
+        });
+    </script>
+{% endblock %}

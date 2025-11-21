@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Roasted Route</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .register-container {
+            min-height: 100vh;
+            background:
+                linear-gradient(rgba(220, 38, 38, 0.4), rgba(220, 38, 38, 0.4)),
+                url("{% static 'imgs/Hailuo_Image_lechon Manok_447814960160579585.png' %}") center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .register-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 960px;
+            overflow: hidden;
+        }
+
+        .register-layout {
+            display: flex;
+            min-height: 420px;
+        }
+
+        .register-main {
+            flex: 1 1 60%;
+            background: #ffffff;
+        }
+
+        .register-side {
+            flex: 1 1 40%;
+            background:
+                linear-gradient(rgba(220,38,38,0.85), rgba(220,38,38,0.85)),
+                url("{% static 'imgs/Hailuo_Image_lechon Manok_447814960160579585.png' %}") center/cover no-repeat;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .register-side h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .register-side p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #F59E0B 0%, #DC2626 100%);
+            color: #ffffff;
+            padding: 1.75rem 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .register-header .brand-icon {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .register-header .brand-icon img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+        }
+
+        .register-header h2 {
+            font-weight: 800;
+            margin-bottom: 0.25rem;
+        }
+
+        .register-header p {
+            margin-bottom: 0;
+            opacity: 0.9;
+        }
+
+        .register-body {
+            padding: 1.75rem 2rem 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #E5E7EB;
+            padding: 0.6rem 0.85rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: #DC2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+        }
+
+        .input-group-text {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-right: none;
+            color: #6B7280;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .btn-roasted {
+            background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+            color: white;
+            border: none;
+            padding: 0.7rem 1rem;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .btn-roasted:hover {
+            background: linear-gradient(135deg, #B91C1C 0%, #DC2626 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+        }
+
+        .form-requirements {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .password-toggle-btn {
+            background: #F9FAFB;
+            border: 1px solid #E5E7EB;
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+            color: #6B7280;
+        }
+
+        .password-toggle-btn:hover {
+            background: #E5E7EB;
+        }
+
+        @media (max-width: 768px) {
+            .register-layout {
+                flex-direction: column;
+            }
+
+            .register-side {
+                padding: 1.5rem 1.75rem;
+                min-height: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .register-body {
+                padding: 1.25rem 1.5rem 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-layout">
+                <div class="register-main">
+                    <div class="register-header">
+                        <div class="brand-icon">
+                            <img src="{% static 'imgs/Final_Logo.png' %}" alt="Roasted Route Logo">
+                        </div>
+                        <h2>Create Account</h2>
+                        <p>Join Roasted Route today</p>
+                    </div>
+
+                    <div class="register-body">
+                        <!-- Error Messages -->
+                        {% if errors %}
+                        <div class="alert alert-danger mb-3">
+                            <h6 class="alert-heading">Please fix the following errors:</h6>
+                            <ul class="mb-0">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- Registration Form -->
+                        <form method="POST" action="{% url 'register' %}">
+                            {% csrf_token %}
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3 field-group">
+                                    <label for="first_name" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                                           value="{{ first_name }}" placeholder="Enter first name" required>
+                                </div>
+                                <div class="col-md-6 mb-3 field-group">
+                                    <label for="last_name" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                                           value="{{ last_name }}" placeholder="Enter last name" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 field-group">
+                                <label for="username" class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" id="username" name="username" 
+                                           value="{{ username }}" placeholder="Choose a username" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 field-group">
+                                <label for="email" class="form-label">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ email }}" placeholder="Enter your email" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 field-group">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ phone }}" placeholder="+63 XXX XXX XXXX" required>
+                                </div>
+                                <div class="form-requirements mt-1">
+                                    Must be in Philippine format: +63 followed by 10 digits
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password1" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="password1" name="password1" 
+                                           placeholder="Create a password" required>
+                                    <button class="password-toggle-btn" type="button" data-target="password1" aria-label="Show or hide password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-requirements mt-1">
+                                    Must be at least 8 characters long
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password2" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="password2" name="password2" 
+                                           placeholder="Confirm your password" required>
+                                    <button class="password-toggle-btn" type="button" data-target="password2" aria-label="Show or hide password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-roasted">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Login Link -->
+                        <div class="text-center mt-2">
+                            <p class="mb-1">Already have an account? 
+                                <a href="{% url 'login' %}" class="text-danger text-decoration-none fw-bold">
+                                    Sign in here
+                                </a>
+                            </p>
+                            <!-- Back to Home -->
+                            <a href="{% url 'home' %}" class="text-muted text-decoration-none small">
+                                <i class="fas fa-arrow-left me-1"></i>Back to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="register-side">
+                    <div class="register-side-content">
+                        <h3>Every new customer is part of our Roasted Route family.</h3>
+                        <p>Create your account to save your details and track all your roasted favorites.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButtons = document.querySelectorAll('.password-toggle-btn');
+            toggleButtons.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (!input) return;
+
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+
+                    const icon = this.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('fa-eye');
+                        icon.classList.toggle('fa-eye-slash');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

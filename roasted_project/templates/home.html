@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roasted Route - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #DC2626;
+            --primary-orange: #F97316;
+            --primary-yellow: #FACC15;
+            --dark-red: #7F1D1D;
+            --light-bg: #FFF7ED;
+            --text-dark: #111827;
+            --text-light: #6B7280;
+        }
+        
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 0.7rem 0;
+            border-bottom: 3px solid rgba(220, 38, 38, 0.15);
+        }
+
+        .navbar .container-fluid {
+            padding-left: 0.75rem;
+            padding-right: 1.5rem;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--primary-red) !important;
+            font-size: 2rem;
+        }
+
+        .navbar-brand i {
+            color: var(--primary-orange);
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--text-light) !important;
+            padding: 0.6rem 1.1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            font-size: 1.15rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-red) !important;
+            background-color: rgba(220, 38, 38, 0.05);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            width: 70%;
+            height: 2px;
+            background-color: var(--primary-red);
+        }
+
+        .nav-auth-btn {
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 0.6rem 1.1rem !important;
+            margin-left: 0.25rem;
+            font-size: 1rem;
+        }
+
+        .nav-auth-login {
+            border: none;
+            background-color: transparent;
+            color: var(--text-light) !important;
+        }
+
+        .nav-auth-login:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+            color: var(--primary-red) !important;
+        }
+
+        .nav-auth-register {
+            background: transparent;
+            color: var(--text-light) !important;
+            border: none;
+        }
+
+        .nav-auth-register:hover {
+            background-color: rgba(220, 38, 38, 0.05);
+            color: var(--primary-red) !important;
+        }
+
+        .navbar-toggler {
+            border: none;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+
+        .hero-section {
+            background:
+                linear-gradient(rgba(220,38,38,0.45), rgba(233, 18, 18, 0.45)),
+                url("{% static 'imgs/Hailuo_Image_lechon Manok_447814960160579585.png' %}") center/cover no-repeat;
+            color: #FFFFFF;
+            padding: 90px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-eyebrow {
+            font-size: 0.9rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #FDE68A;
+        }
+
+        .hero-title {
+            font-size: clamp(2.4rem, 4vw, 3.2rem);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-highlight {
+            color: var(--primary-yellow);
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background-color: rgba(252, 211, 77, 0.3);
+            z-index: -1;
+            border-radius: 4px;
+        }
+
+        .hero-subtitle {
+            max-width: 34rem;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-cta-group .btn {
+            border-radius: 999px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-roasted {
+            background: linear-gradient(135deg, var(--primary-red) 0%, #B91C1C 100%);
+            color: #FFFFFF;
+            border: none;
+        }
+
+        .btn-roasted:hover {
+            background: linear-gradient(135deg, #B91C1C 0%, var(--primary-red) 100%);
+            color: #FFFFFF;
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.45);
+            transform: translateY(-2px);
+        }
+
+        .hero-secondary-btn {
+            border-width: 2px;
+            border-color: rgba(255, 255, 255, 0.85);
+            color: #FFFFFF;
+        }
+
+        .hero-secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #FFFFFF;
+            transform: translateY(-2px);
+        }
+
+        .hero-illustration {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin-left: auto;
+            margin-right: 1rem;
+        }
+
+        .hero-plate {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 80px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 20%, #FEF3C7 0%, #FBBF24 40%, #B45309 100%);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+        }
+
+        .hero-steam {
+            position: absolute;
+            bottom: 120px;
+            width: 40px;
+            height: 80px;
+            border-radius: 999px;
+            background: radial-gradient(circle at top, rgba(255, 255, 255, 0.9) 0%, transparent 70%);
+            opacity: 0.7;
+            animation: steam 3s infinite ease-in-out;
+        }
+
+        .hero-steam-1 { 
+            left: 34%; 
+            animation-delay: 0s;
+        }
+        .hero-steam-2 { 
+            left: 48%; 
+            animation-delay: 0.5s;
+        }
+        .hero-steam-3 { 
+            left: 62%; 
+            animation-delay: 1s;
+        }
+
+        @keyframes steam {
+            0%, 100% { 
+                transform: translateY(0) scale(1);
+                opacity: 0.7;
+            }
+            50% { 
+                transform: translateY(-20px) scale(1.1);
+                opacity: 0.4;
+            }
+        }
+
+        .hero-badge {
+            position: absolute;
+            top: 16%;
+            right: 0;
+            background: #FFFFFF;
+            color: #B91C1C;
+            padding: 0.6rem 0.9rem;
+            border-radius: 999px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .hero-badge-number {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .hero-badge-label {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+
+        .feature-section {
+            background: #FFFFFF;
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-yellow), var(--primary-red));
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            color: var(--text-light);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .feature-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            border-top: 3px solid var(--primary-yellow);
+            opacity: 0.9;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 35px rgba(15, 23, 42, 0.18);
+        }
+
+        .feature-icon-badge {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #FEF3C7;
+            color: #B45309;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon-badge {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .feature-text {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .menu-section {
+            background: var(--light-bg);
+            padding: 5rem 0;
+        }
+
+        .menu-card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .menu-card-img {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .menu-card-body {
+            padding: 1.5rem;
+        }
+
+        .menu-card-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-card-price {
+            color: var(--primary-red);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .menu-card-text {
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .about-section {
+            background: #FFFFFF;
+            padding: 5rem 0;
+        }
+
+        .about-image {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .about-content {
+            padding-left: 2rem;
+        }
+
+        .footer {
+            background: #111827;
+            color: #E5E7EB;
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer a {
+            color: #F9FAFB;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: var(--primary-yellow);
+            text-decoration: none;
+        }
+
+        .footer-heading {
+            color: #FFFFFF;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .footer-heading::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary-red);
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-red);
+            transform: translateY(-3px);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-red);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: #B91C1C;
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 767.98px) {
+            .hero-section {
+                text-align: center;
+                padding: 72px 0 64px;
+            }
+
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+
+            .navbar-brand img {
+                height: 70px !important;
+            }
+
+            .nav-link {
+                font-size: 1rem;
+                padding: 0.5rem 1rem !important;
+            }
+
+            .hero-illustration {
+                display: none;
+            }
+
+            .hero-subtitle {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .about-content {
+                padding-left: 0;
+                margin-top: 2rem;
+            }
+            
+            .navbar-nav {
+                text-align: center;
+                margin-top: 1rem;
+            }
+            
+            .nav-link {
+                padding: 0.75rem 1rem !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#home">
+                <img src="{% static 'imgs/final_logo.png' %}" alt="Roasted Route Logo" class="me-2" style="height:110px; width:auto; border-radius:8px; object-fit:cover;">
+                <span>Roasted Route</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#menu">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                </ul>
+                
+                <div class="navbar-nav ms-lg-3">
+                    {% if user.is_authenticated %}
+                        {% if user.is_staff %}
+                            <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Admin Dashboard
+                            </a>
+                        {% else %}
+                            <a class="nav-link" href="{% url 'customer_dashboard' %}">
+                                <i class="fas fa-user me-1"></i>My Dashboard
+                            </a>
+                        {% endif %}
+                        <a class="nav-link" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </a>
+                    {% else %}
+                        <a class="nav-link nav-auth-btn nav-auth-login" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                        <a class="nav-link nav-auth-btn nav-auth-register" href="{% url 'register' %}">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="home">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7 text-center text-lg-start">
+                    <p class="hero-eyebrow mb-2">
+                        <span class="badge rounded-pill bg-warning text-dark me-2">New</span>
+                        Villa Cornejo's roasted chicken destination
+                    </p>
+                    <h1 class="hero-title fw-bold">
+                        Fresh <span class="hero-highlight">Roasted</span> Chicken,<br class="d-none d-lg-block" />
+                        Ready When You Are
+                    </h1>
+                    <p class="hero-subtitle lead">
+                        Order crispy roasted chicken, sides, and drinks in just a few taps. Fast, simple, and always hot.
+                    </p>
+
+                    {% if not user.is_authenticated %}
+                    <div class="hero-cta-group d-flex flex-wrap justify-content-center justify-content-lg-start">
+                        <a href="{% url 'login' %}" class="btn btn-roasted me-2 mb-2">
+                            <i class="fas fa-sign-in-alt me-2"></i>Start Ordering
+                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-light hero-secondary-btn mb-2">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </a>
+                    </div>
+                    {% else %}
+                        {% if user.is_staff %}
+                        <div class="hero-cta-group d-flex flex-wrap justify-content-center justify-content-lg-start">
+                            <a href="{% url 'admin_dashboard' %}" class="btn btn-roasted mb-2">
+                                <i class="fas fa-tachometer-alt me-2"></i>Go to Admin Dashboard
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="hero-cta-group d-flex flex-wrap justify-content-center justify-content-lg-start">
+                            <a href="{% url 'customer_dashboard' %}" class="btn btn-roasted me-2 mb-2">
+                                <i class="fas fa-user me-2"></i>My Dashboard
+                            </a>
+                            <a href="{% url 'order_now' %}" class="btn btn-outline-light hero-secondary-btn mb-2">
+                                <i class="fas fa-shopping-cart me-2"></i>Order Now
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="col-lg-5 d-none d-lg-block">
+                    <div class="hero-illustration">
+                        <div class="hero-plate"></div>
+                        <div class="hero-steam hero-steam-1"></div>
+                        <div class="hero-steam hero-steam-2"></div>
+                        <div class="hero-steam hero-steam-3"></div>
+                        <div class="hero-badge">
+                            <span class="hero-badge-number">24/7</span>
+                            <span class="hero-badge-label">Hot &amp; Fresh</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="feature-section">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col">
+                    <h2 class="section-title">Why Choose Roasted Route?</h2>
+                    <p class="section-subtitle">Experience the best in town with our premium roasted chicken and exceptional service</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon-badge">
+                                <i class="fas fa-drumstick-bite fa-2x"></i>
+                            </div>
+                            <h5 class="card-title feature-title">Premium Quality</h5>
+                            <p class="card-text feature-text">We use only the finest ingredients and traditional recipes to bring you authentic flavors that keep customers coming back.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon-badge">
+                                <i class="fas fa-truck fa-2x"></i>
+                            </div>
+                            <h5 class="card-title feature-title">Fast Delivery</h5>
+                            <p class="card-text feature-text">Quick and reliable delivery service to bring hot, fresh meals right to your doorstep.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="feature-icon-badge">
+                                <i class="fas fa-utensils fa-2x"></i>
+                            </div>
+                            <h5 class="card-title feature-title">Easy Ordering</h5>
+                            <p class="card-text feature-text">Simple online ordering system with customization options for your perfect meal. Order through our website.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section class="menu-section" id="menu">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col">
+                    <h2 class="section-title">Our Delicious Menu</h2>
+                    <p class="section-subtitle">Explore our mouth-watering selection of roasted chicken and sides</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                {% if featured_items %}
+                    {% for item in featured_items %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card menu-card">
+                            {% if item.image %}
+                            <img src="{{ item.image.url }}" class="menu-card-img" alt="{{ item.name }}">
+                            {% else %}
+                            <img src="{% static 'imgs/Hailuo_Image_lechon Manok_447814960160579585.png' %}" class="menu-card-img" alt="{{ item.name }}">
+                            {% endif %}
+                            <div class="menu-card-body">
+                                <h5 class="menu-card-title">{{ item.name }}</h5>
+                                <p class="menu-card-price">₱{{ item.price|floatformat:2 }}</p>
+                                <p class="menu-card-text">{{ item.description|default:"No description available yet." }}</p>
+                                <a href="{% url 'order_now' %}" class="btn btn-roasted btn-sm">
+                                    {% if user.is_authenticated %}Order Now{% else %}View Menu{% endif %}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col">
+                        <p class="text-center text-muted mb-0">No featured items available right now. Please check back soon.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="row mt-4 text-center">
+                <div class="col">
+                    <a href="{% url 'order_now' %}" class="btn btn-roasted">View Full Menu</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="about-image">
+                        <img src="{% static 'imgs/facade_sd.png.png' %}" alt="Roasted Route Facade">
+                    </div>
+                </div>
+                <div class="col-lg-6 about-content">
+                    <h2 class="section-title">About Roasted Route</h2>
+                    <p>Founded in 2025, Roasted Route has quickly become Biliran's favorite destination for delicious, freshly roasted chicken. Our passion for quality and flavor drives everything we do.</p>
+                    <p>We source our chickens from local farms, ensuring freshness and supporting our community. Our secret blend of herbs and spices has been perfected over years of experimentation.</p>
+                    <p>At Roasted Route, we believe that great food brings people together. Whether you're dining in, taking out, or having it delivered, we promise a memorable culinary experience.</p>
+                    <div class="mt-4">
+                        <a href="#" class="btn btn-roasted me-2">Our Story</a>
+                        <a href="#" class="btn btn-outline-dark">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+         
+                    <h5 class="footer-heading"><i class="fas fa-utensils me-2"></i>Roasted Route</h5>
+                    <p>Villa Cornejo, Kawayan, Biliran</p>
+                    <p><i class="fas fa-clock me-2"></i>Open: 8:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-phone me-2"></i>(053) 123-4567</p>
+                    <div class="social-links mt-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2025 Roasted Route. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="me-3">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-chevron-up"></i>
+    </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Back to top button functionality
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+        
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Update active nav link
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // Update active nav link on scroll
+        window.addEventListener('scroll', function() {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if(scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
